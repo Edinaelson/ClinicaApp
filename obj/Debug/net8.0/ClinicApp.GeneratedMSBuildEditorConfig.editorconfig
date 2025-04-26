@@ -1,4 +1,7 @@
 is_global = true
+build_property.MudDebugAnalyzer = 
+build_property.MudAllowedAttributePattern = 
+build_property.MudAllowedAttributeList = 
 build_property.TargetFramework = net8.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = true
@@ -24,8 +27,16 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = QXBwLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/dev/dotnet/ClinicApp/ClinicApp/Pages/Column.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQ29sdW1uLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/dev/dotnet/ClinicApp/ClinicApp/Pages/Index.razor]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXgucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/dev/dotnet/ClinicApp/ClinicApp/Pages/Pacientes.razor]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUGFjaWVudGVzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/dev/dotnet/ClinicApp/ClinicApp/Shared/SurveyPrompt.razor]

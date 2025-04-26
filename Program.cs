@@ -1,9 +1,15 @@
+using ClinicApp.Data;
+using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite("Data Source=clinic.db"));
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
