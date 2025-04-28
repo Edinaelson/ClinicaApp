@@ -1,12 +1,19 @@
 ﻿@page "/pacientes"
 @using Microsoft.EntityFrameworkCore
-@inject ClinicApp.Data.ApplicationDbContext Db
-
+@inject Data.ApplicationDbContext Db
+    
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     <MudText Typo="Typo.h4" Class="mb-4">Gerenciamento de Pacientes</MudText>
 
+    <MudTextField @bind-Value="SearchTerm"
+                  Placeholder="Buscar por nome..."
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  Immediate="true"
+                  Class="mb-4" />
+
     <MudPaper Elevation="3" Class="pa-4">
-        <MudDataGrid Items="@pacientes" 
+        <MudDataGrid Items="@filteredPacientes" 
                      T="Paciente" 
                      Hover="true"
                      Striped="true"
@@ -23,23 +30,66 @@
     </MudPaper>
 </MudContainer>
 
+<div Class="d-flex justify-space-around flex-wrap mt-4">
+    <MudBadge Content="3" Overlap="true" Class="mx-6 my-4">
+        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
+    </MudBadge>
+    <MudBadge Content="100" Color="Color.Primary" Overlap="true" Class="mx-6 my-4">
+        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
+    </MudBadge>
+    <MudBadge Icon="@Icons.Material.Filled.Lock" Color="Color.Error" Overlap="true" Bordered="true" Class="mx-6 my-4">
+        <MudButton Color="Color.Error" Variant="Variant.Filled" DropShadow="false">Security Issues</MudButton>
+    </MudBadge>
+    <MudBadge Dot="true" Color="Color.Info" Class="mx-6 my-4">
+        <MudText>Bug Reports</MudText>
+    </MudBadge>
+</div>
+
 @code {
     private List<Paciente> pacientes = new();
+    private List<Paciente> filteredPacientes = new();
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             pacientes = await Db.Pacientes.ToListAsync();
-            StateHasChanged();
+            filteredPacientes = pacientes; // Inicialmente mostra todos
         }
         catch (Exception ex)
         {
-            await Task.Run(() => 
-            {
-                // Aqui você poderia adicionar um sistema de logging
-                Console.WriteLine($"Erro ao carregar pacientes: {ex.Message}");
-            });
+            Console.WriteLine($"Erro ao carregar pacientes: {ex.Message}");
         }
     }
+
+    private string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (searchTerm != value)
+            {
+                searchTerm = value;
+                FilterPacientes(searchTerm);
+            }
+        }
+    }
+    
+    private void FilterPacientes(string value)
+    {
+        searchTerm = value; // <-- Atualiza o searchTerm também
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredPacientes = pacientes;
+        }
+        else
+        {
+            filteredPacientes = pacientes
+                .Where(p => p.Nome.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+    
+
 }
