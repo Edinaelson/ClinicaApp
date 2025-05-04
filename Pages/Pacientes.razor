@@ -1,30 +1,41 @@
 ﻿@page "/pacientes"
 @using Microsoft.EntityFrameworkCore
 @inject Data.ApplicationDbContext Db
+@inject NavigationManager Navigation
     
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    
+    <div class="text-center">
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@irParaClientes">
+            Cadastrar Novo Cliente
+        </MudButton>
+    </div>
+    
+    <br/>
+    <br/>
+    
     <MudText Typo="Typo.h4" Class="mb-4">Gerenciamento de Pacientes</MudText>
-
+    
     <MudTextField @bind-Value="SearchTerm"
                   Placeholder="Buscar por nome..."
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Immediate="true"
-                  Class="mb-4" />
+                  Class="mb-4"/>
 
     <MudPaper Elevation="3" Class="pa-4">
-        <MudDataGrid Items="@filteredPacientes" 
-                     T="Paciente" 
+        <MudDataGrid Items="@filteredPacientes"
+                     T="Cliente"
                      Hover="true"
                      Striped="true"
                      Dense="true">
             <Columns>
-                <PropertyColumn Property="x => x.Nome" Title="Nome" />
-                <PropertyColumn Property="x => x.Telefone" Title="Telefone" />
-                <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento" Format="dd/MM/yyyy" />
+                <PropertyColumn Property="x => x.Nome" Title="Nome"/>
+                <PropertyColumn Property="x => x.Telefone" Title="Telefone"/>
+                <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento" Format="dd/MM/yyyy"/>
             </Columns>
             <PagerContent>
-                <MudDataGridPager T="Paciente" />
+                <MudDataGridPager T="Cliente"/>
             </PagerContent>
         </MudDataGrid>
     </MudPaper>
@@ -46,15 +57,21 @@
 </div>
 
 @code {
-    private List<Paciente> pacientes = new();
-    private List<Paciente> filteredPacientes = new();
+    
+    private void irParaClientes()
+    {
+        Navigation.NavigateTo("/clientes");
+    }
+    
+    private List<Cliente> pacientes = new();
+    private List<Cliente> filteredPacientes = new();
     private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            pacientes = await Db.Pacientes.ToListAsync();
+            pacientes = await Db.Clientes.ToListAsync();
             filteredPacientes = pacientes; // Inicialmente mostra todos
         }
         catch (Exception ex)

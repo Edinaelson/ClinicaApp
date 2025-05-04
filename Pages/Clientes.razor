@@ -7,10 +7,13 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
 
-    <MudTextField @bind-Value="cliente.Nome" Label="Nome" For="@(() => cliente.Nome)" Required="true" />
-    <MudTextField @bind-Value="cliente.Email" Label="Email" For="@(() => cliente.Email)" Required="true" />
-    <MudTextField @bind-Value="cliente.Telefone" Label="Telefone" For="@(() => cliente.Telefone)" />
+    <MudTextField @bind-Value="cliente.Nome" Label="Nome" For="@(() => cliente.Nome)" Required="true" Class="form-control-sm col-md-4"/>
+    <MudTextField @bind-Value="cliente.Email" Label="Email" For="@(() => cliente.Email)" Required="true" Class="form-control-sm col-md-4"/>
+    <MudTextField @bind-Value="cliente.Telefone" Label="Telefone" For="@(() => cliente.Telefone)" Class="form-control-sm col-md-4"/>
+    <MudTextField @bind-Value="cliente.DataNascimento" Label="Dada De Nascimento" For="@(() => cliente.DataNascimento)" Required="true" Class="form-control-sm col-md-4"/>
 
+    <br/>
+    
     <button class="btn btn-primary" type="submit">Salvar</button>
 </EditForm>
 
