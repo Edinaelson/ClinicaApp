@@ -1,0 +1,41 @@
+﻿@page "/clientes"
+@inject Data.ApplicationDbContext Db
+
+<h3>Adicionar Cliente</h3>
+
+<EditForm Model="@cliente" OnValidSubmit="SalvarCliente">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <MudTextField @bind-Value="cliente.Nome" Label="Nome" For="@(() => cliente.Nome)" Required="true" />
+    <MudTextField @bind-Value="cliente.Email" Label="Email" For="@(() => cliente.Email)" Required="true" />
+    <MudTextField @bind-Value="cliente.Telefone" Label="Telefone" For="@(() => cliente.Telefone)" />
+
+    <button class="btn btn-primary" type="submit">Salvar</button>
+</EditForm>
+
+@if (mensagemSucesso is not null)
+{
+    <div class="alert alert-success mt-3">@mensagemSucesso</div>
+}
+
+@code {
+    private Cliente cliente = new();
+    private string? mensagemSucesso;
+
+    private async Task SalvarCliente()
+    {
+        try
+        {
+            Db.Clientes.Add(cliente);
+            await Db.SaveChangesAsync();
+
+            mensagemSucesso = "Cliente salvo com sucesso!";
+            cliente = new(); // limpa o formulário
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erro ao salvar cliente: " + ex.Message);
+        }
+    }
+}

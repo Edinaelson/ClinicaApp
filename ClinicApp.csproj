@@ -15,4 +15,8 @@
     <PackageReference Include="MudBlazor" Version="8.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Clientes\Cliente.razor" />
+  </ItemGroup>
+
 </Project>

@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
    public DbSet<Paciente> Pacientes { get; set; }
    public DbSet<Agendamento> Agendamentos { get; set; }
    public DbSet<Usuario> Usuarios { get; set; }
+   public DbSet<Cliente> Clientes { get; set; }
    
     
 }
