@@ -5,7 +5,6 @@
 
 <EditForm Model="@cliente" OnValidSubmit="SalvarCliente">
     <DataAnnotationsValidator />
-    <ValidationSummary />
 
     <MudTextField @bind-Value="cliente.Nome" Label="Nome" For="@(() => cliente.Nome)" Required="true" Class="form-control-sm col-md-4"/>
     <MudTextField @bind-Value="cliente.Email" Label="Email" For="@(() => cliente.Email)" Required="true" Class="form-control-sm col-md-4"/>

@@ -6,10 +6,10 @@ public class Cliente
 {
     public int Id { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "Nome obrigatorio")]
     public string Nome { get; set; }
     
-    [Required, EmailAddress(ErrorMessage = "Email obrigatorio")]
+    [Required(ErrorMessage = "Email obrigatorio")]
     public string Email { get; set; }
     
     public string Telefone { get; set; }
