@@ -3,27 +3,21 @@
 @inject Data.ApplicationDbContext Db
 @inject NavigationManager Navigation
 @inject IDialogService DialogService
-    
+@inject ISnackbar Snackbar
+
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
-    
-    <!-- 
-    <MudButton @onclick="OpenDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
-        Open Simple Dialog
-    </MudButton>
-    -->
-    
-    
-    
-    <div class="text-center">
-        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@irParaClientes">
-            Cadastrar Novo Cliente
+
+    <div class="d-flex justify-end mb-4">
+        <MudButton Color="Color.Success"
+                   Variant="Variant.Filled"
+                   OnClick="@OpenAddDialog"
+                   StartIcon="@Icons.Material.Filled.PersonAdd"
+                   Class="px-6">
+            Cadastrar Cliente
         </MudButton>
     </div>
     
-    <br/>
-    <br/>
-    
-    <MudText Typo="Typo.h4" Class="mb-4">Gerenciamento de Pacientes</MudText>
+    <MudText Typo="Typo.h4" Class="mb-4">Gerenciar Pacientes</MudText>
     
     <MudTextField @bind-Value="SearchTerm"
                   Placeholder="Buscar por nome..."
@@ -49,8 +43,6 @@
                     </CellTemplate>
                 </PropertyColumn>
                 
-                
-
                 <PropertyColumn Property="x => x.Email" Title="Email">
                     <CellTemplate Context="paciente">
                         <MudText Style="cursor:pointer;"
@@ -59,6 +51,7 @@
                         </MudText>
                     </CellTemplate>
                 </PropertyColumn>
+                
                 <PropertyColumn Property="x => x.Telefone" Title="Telefone">
                     <CellTemplate Context="paciente">
                         <MudText Style="cursor:pointer;"
@@ -67,6 +60,7 @@
                         </MudText>
                     </CellTemplate>
                 </PropertyColumn>
+                
                 <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento">
                     <CellTemplate Context="paciente">
                         <MudText Style="cursor:pointer;"
@@ -121,14 +115,25 @@
             "Deletar Paciente",
             "Tem certeza que deseja deletar este paciente?",
             yesText: "Deletar", cancelText: "Cancelar");
-
+    
         if (result ?? false)
         {
-            Db.Clientes.Remove(paciente);
-            await Db.SaveChangesAsync();
-            pacientes.Remove(paciente);
-            FilterPacientes(searchTerm);
-            StateHasChanged();
+            try
+            {
+                Db.Clientes.Remove(paciente);
+                await Db.SaveChangesAsync();
+                pacientes.Remove(paciente);
+                filteredPacientes.Remove(paciente);
+                Snackbar.Add("Paciente deletado com sucesso!", Severity.Error, config =>
+                {
+                    config.ShowCloseIcon = true;
+                    config.VisibleStateDuration = 3000;
+                });
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Erro ao deletar paciente: {ex.Message}", Severity.Error);
+            }
         }
     }
 
@@ -147,7 +152,7 @@
             FullWidth = true
         };
 
-        var diaolog = DialogService.Show<PacienteDialog>("Editar paciente", parameters, options);
+        var diaolog = DialogService.Show<PacienteEditDialog>("Editar paciente", parameters, options);
         var result = await diaolog.Result;
 
         if (!result.Canceled && result.Data is Cliente atualizado)
@@ -159,15 +164,25 @@
                 FilterPacientes(searchTerm);
             }
         }
+    }
 
-        //var options = new DialogOptions { CloseOnEscapeKey = true };
-        //await DialogService.ShowAsync<PacienteDialog>("Simple Dialog", options);
-    }
-    
-    private void irParaClientes()
+private async Task OpenAddDialog()
+{
+    var options = new DialogOptions
     {
-        Navigation.NavigateTo("/clientes");
+        CloseOnEscapeKey = true,
+        MaxWidth = MaxWidth.Small,
+        FullWidth = true
+    };
+
+    var dialog = DialogService.Show<PacienteAddDialog>("Adicionar paciente", options);
+    var result = await dialog.Result;
+
+    if (!result.Canceled && result.Data is Cliente novo)
+    {
+        pacientes.Add(novo);
     }
+}
     
     private List<Cliente> pacientes = new();
     private List<Cliente> filteredPacientes = new();

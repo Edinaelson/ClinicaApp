@@ -57,6 +57,13 @@
             cliente.Telefone = PacienteEditado.Telefone;
             cliente.DataNascimento = PacienteEditado.DataNascimento;
             await Db.SaveChangesAsync();
+            Snackbar.Add("Cliente atualizado com sucesso!", Severity.Info, config =>
+            {
+                config.ShowCloseIcon = true;
+                config.VisibleStateDuration = 3000;
+            });
+
+
             MudDialog.Close(DialogResult.Ok(PacienteEditado));
         }
     }
