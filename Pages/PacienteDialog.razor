@@ -1,21 +1,63 @@
-﻿<MudDialog>
-    <TitleContent>
-        Dialog Title
-    </TitleContent>
-    <DialogContent>
-        Dialog Content
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Error" OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
-    </DialogActions>
-</MudDialog>
+﻿@inject ISnackbar Snackbar
+@inject Data.ApplicationDbContext Db
+
+<MudDialogContent>
+    <MudPaper Class="pa-4" Elevation="0">
+        <MudTextField Label="Nome" @bind-Value="PacienteEditado.Nome" Variant="Variant.Filled" Class="my-2" />
+        <MudTextField Label="Email" @bind-Value="PacienteEditado.Email" Variant="Variant.Filled" Class="my-2" />
+        <MudTextField Mask="@(new PatternMask("(00) 00000-0000"))" Label="phone Number"
+                      @bind-Value="PacienteEditado.Telefone" Clearable  Variant="Variant.Filled" Class="my-2"/>
+        <MudDatePicker Label="Data de Nascimento" @bind-Date="PacienteEditado.DataNascimento" Variant="Variant.Filled"
+                       Class="my-2"
+                       DateFormat="dd/MM/yyyy" AdornmentIcon="@Icons.Material.Filled.Event" Adornment="Adornment.End"/>
+    </MudPaper>
+</MudDialogContent>
+
+<MudDialogActions Class="px-4 pb-4">
+    <MudButton OnClick="@(async () => await Salvar())" Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save">
+        Salvar
+    </MudButton>
+    <MudButton OnClick="Cancel" Color="Color.Secondary" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.Cancel">
+        Cancelar
+    </MudButton>
+</MudDialogActions>
 
 @code {
     [CascadingParameter]
     private IMudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public Cliente Paciente { get; set; }
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(true));
 
     private void Cancel() => MudDialog.Cancel();
+    
+    private Cliente PacienteEditado = new();
+    
+    protected override void OnInitialized()
+    {
+        // Copia para edição local
+        PacienteEditado = new Cliente
+        {
+            Id = Paciente.Id,
+            Nome = Paciente.Nome,
+            Telefone = Paciente.Telefone,
+            DataNascimento = Paciente.DataNascimento,
+            Email = Paciente.Email
+        };
+    }
+
+    private async Task Salvar()
+    {
+        var cliente = await Db.Clientes.FindAsync(PacienteEditado.Id);
+        if (cliente != null)
+        {
+            cliente.Nome = PacienteEditado.Nome;
+            cliente.Email = PacienteEditado.Email;
+            cliente.Telefone = PacienteEditado.Telefone;
+            cliente.DataNascimento = PacienteEditado.DataNascimento;
+            await Db.SaveChangesAsync();
+            MudDialog.Close(DialogResult.Ok(PacienteEditado));
+        }
+    }
 }

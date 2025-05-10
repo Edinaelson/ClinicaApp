@@ -2,15 +2,16 @@
 @using Microsoft.EntityFrameworkCore
 @inject Data.ApplicationDbContext Db
 @inject NavigationManager Navigation
-
 @inject IDialogService DialogService
     
 <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
     
-    
+    <!-- 
     <MudButton @onclick="OpenDialogAsync" Variant="Variant.Filled" Color="Color.Primary">
         Open Simple Dialog
     </MudButton>
+    -->
+    
     
     
     <div class="text-center">
@@ -30,23 +31,71 @@
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Immediate="true"
                   Class="mb-4"/>
-
+    
     <MudPaper Elevation="3" Class="pa-4">
         <MudDataGrid Items="@filteredPacientes"
                      T="Cliente"
                      Hover="true"
                      Striped="true"
                      Dense="true">
+
             <Columns>
-                <PropertyColumn Property="x => x.Nome" Title="Nome"/>
-                <PropertyColumn Property="x => x.Telefone" Title="Telefone"/>
-                <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento" Format="dd/MM/yyyy"/>
+                <PropertyColumn Property="x => x.Nome" Title="Nome">
+                    <CellTemplate Context="paciente">
+                        <MudText Style="cursor:pointer;"
+                                 @onclick="() => OpenDialog(paciente.Item)">
+                            @paciente.Item.Nome
+                        </MudText>
+                    </CellTemplate>
+                </PropertyColumn>
+                
+                
+
+                <PropertyColumn Property="x => x.Email" Title="Email">
+                    <CellTemplate Context="paciente">
+                        <MudText Style="cursor:pointer;"
+                                 @onclick="() => OpenDialog(paciente.Item)">
+                            @paciente.Item.Email
+                        </MudText>
+                    </CellTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="x => x.Telefone" Title="Telefone">
+                    <CellTemplate Context="paciente">
+                        <MudText Style="cursor:pointer;"
+                                 @onclick="() => OpenDialog(paciente.Item)">
+                            @paciente.Item.Telefone
+                        </MudText>
+                    </CellTemplate>
+                </PropertyColumn>
+                <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento">
+                    <CellTemplate Context="paciente">
+                        <MudText Style="cursor:pointer;"
+                                 @onclick="() => OpenDialog(paciente.Item)">
+                            @paciente.Item.DataNascimento?.ToString("dd/MM/yyyy")
+                        </MudText>
+                    </CellTemplate>
+                </PropertyColumn>
+                
+                <TemplateColumn>
+                    <CellTemplate Context="paciente">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                        
+                                       Color="Color.Error"
+                                       Size="Size.Small"
+                                       OnClick="@(() => DeletePaciente(paciente.Item))"/>
+                    </CellTemplate>
+                </TemplateColumn>
+                
             </Columns>
+
             <PagerContent>
-                <MudDataGridPager T="Cliente"/>
+                <MudDataGridPager T="Cliente" />
             </PagerContent>
+
         </MudDataGrid>
+
     </MudPaper>
+    
 </MudContainer>
 
 <div Class="d-flex justify-space-around flex-wrap mt-4">
@@ -65,11 +114,54 @@
 </div>
 
 @code {
-   
-    private async Task OpenDialogAsync()
+
+    private async Task DeletePaciente(Cliente paciente)
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        await DialogService.ShowAsync<PacienteDialog>("Simple Dialog", options);
+        bool? result = await DialogService.ShowMessageBox(
+            "Deletar Paciente",
+            "Tem certeza que deseja deletar este paciente?",
+            yesText: "Deletar", cancelText: "Cancelar");
+
+        if (result ?? false)
+        {
+            Db.Clientes.Remove(paciente);
+            await Db.SaveChangesAsync();
+            pacientes.Remove(paciente);
+            FilterPacientes(searchTerm);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenDialog(Cliente paciente)
+    {
+
+        var parameters = new DialogParameters
+        {
+            ["paciente"] = paciente
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true
+        };
+
+        var diaolog = DialogService.Show<PacienteDialog>("Editar paciente", parameters, options);
+        var result = await diaolog.Result;
+
+        if (!result.Canceled && result.Data is Cliente atualizado)
+        {
+            var index = pacientes.FindIndex(p => p.Id == atualizado.Id);
+            if (index != -1)
+            {
+                pacientes[index] = atualizado;
+                FilterPacientes(searchTerm);
+            }
+        }
+
+        //var options = new DialogOptions { CloseOnEscapeKey = true };
+        //await DialogService.ShowAsync<PacienteDialog>("Simple Dialog", options);
     }
     
     private void irParaClientes()
