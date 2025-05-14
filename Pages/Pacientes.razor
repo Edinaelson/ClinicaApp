@@ -1,206 +1,75 @@
 ﻿@page "/pacientes"
 @using Microsoft.EntityFrameworkCore
+@using ClinicApp.Pages.Dialog
 @inject Data.ApplicationDbContext Db
 @inject NavigationManager Navigation
-@inject IDialogService DialogService
-@inject ISnackbar Snackbar
+@inject DialogService DialogService
+@inject NotificationService NotificationService
 
-<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+<RadzenButton Text="Cadastrar Cliente"
+              Icon="person_add"
+              Style="margin-bottom:20px"
+              Click="@OpenAddDialog"
+              ButtonStyle="ButtonStyle.Success" />
 
-    <div class="d-flex justify-end mb-4">
-        <MudButton Color="Color.Success"
-                   Variant="Variant.Filled"
-                   OnClick="@OpenAddDialog"
-                   StartIcon="@Icons.Material.Filled.PersonAdd"
-                   Class="px-6">
-            Cadastrar Cliente
-        </MudButton>
-    </div>
+<RadzenTextBox @bind-Value="SearchTerm"
+               Placeholder="Buscar por nome..."
+               Immediate="true"
+               Style="width: 100%; margin-bottom: 10px"
+               Adornment="Adornment.Start" />
+
+
+<RadzenDataGrid TItem="Cliente"
+                Data="@filteredPacientes"
+                AllowPaging="true"
+                PageSize="10"
+                AllowFiltering="false"
+                AllowSorting="true"
+                ColumnWidth="200px"
+                ShowPagingSummary="true">
+
+    <Columns>
+        <RadzenDataGridColumn TItem="Cliente" Property="Nome" Title="Nome" />
+        <RadzenDataGridColumn TItem="Cliente" Property="Email" Title="Email" />
+        <RadzenDataGridColumn TItem="Cliente" Property="Telefone" Title="Telefone"/>
+        <RadzenDataGridColumn TItem="Cliente" Property="DataNascimento" Title="Data de Nascimento" 
+                              FormatString="{0:dd/MM/yyyy}" />
+
+        <RadzenDataGridColumn TItem="Cliente" Title="Ações">
+            <Template Context="paciente">
+                <RadzenButton Icon="edit"
+                              ButtonStyle="ButtonStyle.Info"
+                              Size="ButtonSize.Small"
+                              Class="mr-1"
+                              Click="@(args => OpenDialog(paciente))"/>
+                <RadzenButton Icon="delete"
+                              ButtonStyle="ButtonStyle.Danger"
+                              Size="ButtonSize.Small"
+                              Click="@(args => DeletePaciente(paciente))" />
+            </Template>
+        </RadzenDataGridColumn>
+        
+    </Columns>
     
-    <MudText Typo="Typo.h4" Class="mb-4">Gerenciar Pacientes</MudText>
-    
-    <MudTextField @bind-Value="SearchTerm"
-                  Placeholder="Buscar por nome..."
-                  Adornment="Adornment.Start"
-                  AdornmentIcon="@Icons.Material.Filled.Search"
-                  Immediate="true"
-                  Class="mb-4"/>
-    
-    <MudPaper Elevation="3" Class="pa-4">
-        <MudDataGrid Items="@filteredPacientes"
-                     T="Cliente"
-                     Hover="true"
-                     Striped="true"
-                     Dense="true">
-
-            <Columns>
-                <PropertyColumn Property="x => x.Nome" Title="Nome">
-                    <CellTemplate Context="paciente">
-                        <MudText Style="cursor:pointer;"
-                                 @onclick="() => OpenDialog(paciente.Item)">
-                            @paciente.Item.Nome
-                        </MudText>
-                    </CellTemplate>
-                </PropertyColumn>
-                
-                <PropertyColumn Property="x => x.Email" Title="Email">
-                    <CellTemplate Context="paciente">
-                        <MudText Style="cursor:pointer;"
-                                 @onclick="() => OpenDialog(paciente.Item)">
-                            @paciente.Item.Email
-                        </MudText>
-                    </CellTemplate>
-                </PropertyColumn>
-                
-                <PropertyColumn Property="x => x.Telefone" Title="Telefone">
-                    <CellTemplate Context="paciente">
-                        <MudText Style="cursor:pointer;"
-                                 @onclick="() => OpenDialog(paciente.Item)">
-                            @paciente.Item.Telefone
-                        </MudText>
-                    </CellTemplate>
-                </PropertyColumn>
-                
-                <PropertyColumn Property="x => x.DataNascimento" Title="Data de Nascimento">
-                    <CellTemplate Context="paciente">
-                        <MudText Style="cursor:pointer;"
-                                 @onclick="() => OpenDialog(paciente.Item)">
-                            @paciente.Item.DataNascimento?.ToString("dd/MM/yyyy")
-                        </MudText>
-                    </CellTemplate>
-                </PropertyColumn>
-                
-                <TemplateColumn>
-                    <CellTemplate Context="paciente">
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                        
-                                       Color="Color.Error"
-                                       Size="Size.Small"
-                                       OnClick="@(() => DeletePaciente(paciente.Item))"/>
-                    </CellTemplate>
-                </TemplateColumn>
-                
-            </Columns>
-
-            <PagerContent>
-                <MudDataGridPager T="Cliente" />
-            </PagerContent>
-
-        </MudDataGrid>
-
-    </MudPaper>
-    
-</MudContainer>
-
-<div Class="d-flex justify-space-around flex-wrap mt-4">
-    <MudBadge Content="3" Overlap="true" Class="mx-6 my-4">
-        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
-    </MudBadge>
-    <MudBadge Content="100" Color="Color.Primary" Overlap="true" Class="mx-6 my-4">
-        <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
-    </MudBadge>
-    <MudBadge Icon="@Icons.Material.Filled.Lock" Color="Color.Error" Overlap="true" Bordered="true" Class="mx-6 my-4">
-        <MudButton Color="Color.Error" Variant="Variant.Filled" DropShadow="false">Security Issues</MudButton>
-    </MudBadge>
-    <MudBadge Dot="true" Color="Color.Info" Class="mx-6 my-4">
-        <MudText>Bug Reports</MudText>
-    </MudBadge>
-</div>
+</RadzenDataGrid>
 
 @code {
-
-    private async Task DeletePaciente(Cliente paciente)
-    {
-        bool? result = await DialogService.ShowMessageBox(
-            "Deletar Paciente",
-            "Tem certeza que deseja deletar este paciente?",
-            yesText: "Deletar", cancelText: "Cancelar");
-    
-        if (result ?? false)
-        {
-            try
-            {
-                Db.Clientes.Remove(paciente);
-                await Db.SaveChangesAsync();
-                pacientes.Remove(paciente);
-                filteredPacientes.Remove(paciente);
-                Snackbar.Add("Paciente deletado com sucesso!", Severity.Error, config =>
-                {
-                    config.ShowCloseIcon = true;
-                    config.VisibleStateDuration = 3000;
-                });
-            }
-            catch (Exception ex)
-            {
-                Snackbar.Add($"Erro ao deletar paciente: {ex.Message}", Severity.Error);
-            }
-        }
-    }
-
-    private async Task OpenDialog(Cliente paciente)
-    {
-
-        var parameters = new DialogParameters
-        {
-            ["paciente"] = paciente
-        };
-
-        var options = new DialogOptions
-        {
-            CloseOnEscapeKey = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true
-        };
-
-        var diaolog = DialogService.Show<PacienteEditDialog>("Editar paciente", parameters, options);
-        var result = await diaolog.Result;
-
-        if (!result.Canceled && result.Data is Cliente atualizado)
-        {
-            var index = pacientes.FindIndex(p => p.Id == atualizado.Id);
-            if (index != -1)
-            {
-                pacientes[index] = atualizado;
-                FilterPacientes(searchTerm);
-            }
-        }
-    }
-
-private async Task OpenAddDialog()
-{
-    var options = new DialogOptions
-    {
-        CloseOnEscapeKey = true,
-        MaxWidth = MaxWidth.Small,
-        FullWidth = true
-    };
-
-    var dialog = DialogService.Show<PacienteAddDialog>("Adicionar paciente", options);
-    var result = await dialog.Result;
-
-    if (!result.Canceled && result.Data is Cliente novo)
-    {
-        pacientes.Add(novo);
-    }
-}
-    
     private List<Cliente> pacientes = new();
     private List<Cliente> filteredPacientes = new();
-    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             pacientes = await Db.Clientes.ToListAsync();
-            filteredPacientes = pacientes; // Inicialmente mostra todos
+            FilterPacientes(searchTerm);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Erro ao carregar pacientes: {ex.Message}");
+            NotificationService.Notify(NotificationSeverity.Error, "Erro", $"Erro ao carregar pacientes: {ex.Message}");
         }
     }
-
+    private string searchTerm = string.Empty;
     private string SearchTerm
     {
         get => searchTerm;
@@ -213,7 +82,7 @@ private async Task OpenAddDialog()
             }
         }
     }
-    
+
     private void FilterPacientes(string value)
     {
         searchTerm = value; // <-- Atualiza o searchTerm também
@@ -228,6 +97,78 @@ private async Task OpenAddDialog()
                 .ToList();
         }
     }
-    
 
+    private async Task OpenAddDialog()
+    {
+        var options = new DialogOptions { Width = "600px", CloseDialogOnEsc = true, ShowClose = true };
+
+        var result = await DialogService.OpenAsync<PacienteAddDialog>(
+            "Adicionar paciente",
+            parameters: null,
+            options: options
+        );
+
+        if (result is Cliente novo)
+        {
+            pacientes.Add(novo);
+            FilterPacientes(searchTerm);
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task OpenDialog(Cliente paciente)
+    {
+        var options = new DialogOptions
+        {
+            Width = "600px",
+            CloseDialogOnEsc = true,
+            ShowClose = true
+        };
+
+        var parameters = new Dictionary<string, object>
+        {
+            { "Paciente", paciente }
+        };
+
+        var result = await DialogService.OpenAsync<PacienteEditDialog>(
+            "Editar paciente",
+            parameters,
+            options
+        );
+
+        if (result is Cliente atualizado)
+        {
+            var index = pacientes.FindIndex(p => p.Id == atualizado.Id);
+            if (index != -1)
+            {
+                pacientes[index] = atualizado;
+                FilterPacientes(searchTerm);
+                StateHasChanged();
+            }
+        }
+    }
+    
+    private async Task DeletePaciente(Cliente paciente)
+    {
+        bool? confirm = await DialogService.Confirm("Tem certeza que deseja deletar este paciente?", "Deletar Paciente");
+
+        if (confirm == true)
+        {
+            try
+            {
+                Db.Clientes.Remove(paciente);
+                await Db.SaveChangesAsync();
+
+                pacientes.Remove(paciente);
+                FilterPacientes(searchTerm);
+
+                NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Paciente deletado com sucesso!");
+            }
+            catch (Exception ex)
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Erro", $"Erro ao deletar paciente: {ex.Message}");
+            }
+        }
+    }
 }

@@ -1,0 +1,127 @@
+﻿@inject NotificationService NotificationService
+@inject Data.ApplicationDbContext Db
+@inject DialogService DialogService
+
+<div class="dialog-container">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <RadzenTextBox Placeholder="Nome"
+                           @bind-Value="PacienteEditado.Nome"
+                           class="w-100"/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <RadzenTextBox Placeholder="Email"
+                           @bind-Value="PacienteEditado.Email"
+                           class="w-100"/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <RadzenTextBox Mask="(00) 00000-0000"
+                           Change=@(args => FormatPhoneNumber(args))
+                           MaxLength="15"
+                           Placeholder="Telefone"
+                           @bind-Value="PacienteEditado.Telefone" 
+                           class="w-100"/>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <RadzenTextBox Mask="000.000.000-00"
+                           Change=@(args => FormatCpf(args))
+                           MaxLength="11"
+                           Placeholder="CPF"
+                           @bind-Value="PacienteEditado.Cpf"
+                           class="w-100" />
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <RadzenDatePicker Placeholder="Data De Nascimento"
+                              @bind-Value="PacienteEditado.DataNascimento"
+                              DateFormat="dd/MM/yyyy"
+                              class="w-100"/>
+        </div>
+    </div>
+    
+
+    <div class="row">
+        <div class="col-md-12 text-right">
+            <RadzenButton Click="Salvar" Text="Salvar" ButtonStyle="ButtonStyle.Primary" class="mr-2" />
+            <RadzenButton Click="Fechar" Text="Cancelar" ButtonStyle="ButtonStyle.Secondary" />
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public Cliente? Paciente { get; set; } = new();
+
+    private void FormatPhoneNumber(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return;
+        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
+        if (digitsOnly.Length >= 11)
+        {
+            PacienteEditado.Telefone = $"({digitsOnly.Substring(0, 2)}) {digitsOnly.Substring(2, 5)}-{digitsOnly.Substring(7, 4)}";
+        }
+    }
+    
+
+    private void FormatCpf(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return;
+        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
+        if (digitsOnly.Length >= 11)
+        {
+            PacienteEditado.Cpf = $"{digitsOnly.Substring(0, 3)}.{digitsOnly.Substring(3, 3)}.{digitsOnly.Substring(6, 3)}-{digitsOnly.Substring(9, 2)}";
+        }
+    }
+
+
+    private Cliente PacienteEditado = new();
+    
+    protected override void OnInitialized()
+    {
+        
+        
+        if (Paciente != null)
+        {
+            PacienteEditado = new Cliente
+            {
+                Nome = Paciente.Nome,
+                Email = Paciente.Email,
+                Telefone = Paciente.Telefone ?? "",
+                DataNascimento = Paciente.DataNascimento,
+                Cpf = Paciente.Cpf ?? ""
+            };
+        }
+        else
+        {
+            PacienteEditado = new Cliente();
+        }
+    }
+
+    private async Task Salvar()
+    {
+        try
+        {
+            await Db.Clientes.AddAsync(PacienteEditado);
+            await Db.SaveChangesAsync();
+            NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Cliente adicionado com sucesso!");
+            DialogService.Close(PacienteEditado);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error,"Erro ao adicionar cliente: " + ex.Message);
+        }
+    }
+    
+    private void Fechar(){
+        DialogService.Close();
+    }
+    
+}

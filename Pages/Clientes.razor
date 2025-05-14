@@ -6,19 +6,29 @@
 <EditForm Model="@cliente" OnValidSubmit="SalvarCliente">
     <DataAnnotationsValidator />
 
-    <MudTextField @bind-Value="cliente.Nome" Label="Nome" For="@(() => cliente.Nome)" Required="true" Class="form-control-sm col-md-4"/>
-    <MudTextField @bind-Value="cliente.Email" Label="Email" For="@(() => cliente.Email)" Required="true" Class="form-control-sm col-md-4"/>
-    <MudTextField @bind-Value="cliente.Telefone" Label="Telefone" For="@(() => cliente.Telefone)" Class="form-control-sm col-md-4"/>
-    <MudTextField @bind-Value="cliente.DataNascimento" Label="Dada De Nascimento" For="@(() => cliente.DataNascimento)" Required="true" Class="form-control-sm col-md-4"/>
+    <RadzenFormField Text="Nome" Style="width: 100%; max-width: 400px;">
+        <RadzenTextBox @bind-Value="cliente.Nome" Name="Nome" Class="w-100"/>
+    </RadzenFormField>
+    <RadzenFormField Text="Email" Style="width: 100%; max-width: 400px;">
+        <RadzenTextBox @bind-Value="cliente.Email" Name="Email" Class="w-100"/>
+    </RadzenFormField>
+    <RadzenFormField Text="Telefone" Style="width: 100%; max-width: 400px;">
+        <RadzenTextBox @bind-Value="cliente.Telefone" Name="Telefone" Class="w-100"/>
+    </RadzenFormField>
+    <RadzenFormField Text="Data De Nascimento" Style="width: 100%; max-width: 400px;">
+        <RadzenDatePicker @bind-Value="cliente.DataNascimento" Name="DataNascimento" Class="w-100"/>
+    </RadzenFormField>
 
     <br/>
-    
-    <button class="btn btn-primary" type="submit">Salvar</button>
+
+    <RadzenButton ButtonType="ButtonType.Submit" Text="Salvar" ButtonStyle="ButtonStyle.Primary"/>
 </EditForm>
 
 @if (mensagemSucesso is not null)
 {
-    <div class="alert alert-success mt-3">@mensagemSucesso</div>
+    <RadzenAlert AllowClose="true" AlertStyle="AlertStyle.Success" ShowIcon="true" Variant="Variant.Filled" Class="mt-3">
+        @mensagemSucesso
+    </RadzenAlert>
 }
 
 @code {

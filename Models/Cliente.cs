@@ -18,6 +18,6 @@ public class Cliente
     public DateTime? DataNascimento { get; set; }
     
     [Required(ErrorMessage = "CPF obrigatorio")]
-    public  string Cpf { get; set; }
+    public  string? Cpf { get; set; }
     
 }

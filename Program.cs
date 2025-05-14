@@ -1,21 +1,20 @@
 using ClinicApp.Data;
 using Microsoft.EntityFrameworkCore;
-using MudBlazor;
-using MudBlazor.Services;
+using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddRadzenComponents();
+builder.Services.AddScoped<NotificationService>();
+builder.Services.AddScoped<DialogService>();
+builder.Services.AddScoped<TooltipService>();
+builder.Services.AddScoped<ContextMenuService>();
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=clinic.db"));
-
-builder.Services.AddMudServices(config =>
-{
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
-});
-
 
 var app = builder.Build();
 
