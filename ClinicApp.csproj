@@ -19,4 +19,8 @@
     <_ContentIncludedByDefault Remove="Pages\Clientes\Cliente.razor" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="images\" />
+  </ItemGroup>
+
 </Project>
