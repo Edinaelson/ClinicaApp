@@ -19,7 +19,7 @@ Este é um sistema de agendamento de compromissos desenvolvido com **Blazor** us
    ```bash
    git clone https://github.com/Edinaelson/ClinicaApp.git
    cd clinicapp
-   dotner run
+   dotnet run
 
 ## 🖼️ Capturas de Tela
 
