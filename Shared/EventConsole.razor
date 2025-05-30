@@ -1,7 +1,8 @@
 ﻿@using Radzen
 @using System.Text.Json
 @inject IJSRuntime JSRuntime
-<RadzenCard Variant="Variant.Outlined" class="rz-mt-4">
+<div style="justify-items: center;">
+<RadzenCard Variant="Variant.Outlined" class="rz-mt-4" Style="width: 940px;">
     <RadzenStack Orientation="Orientation.Vertical" Gap="0.5rem" @attributes=@Attributes>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
             <RadzenText TextStyle="TextStyle.Subtitle1" TagName="TagName.P" class="rz-m-0">Console log</RadzenText>
@@ -17,6 +18,7 @@
         </RadzenStack>
     </RadzenStack>
 </RadzenCard>
+</div>
 
 @code {
     class Message
