@@ -29,9 +29,9 @@
     </div>
     <div class="row mb-3">
         <div class="col-md-12">
-            <RadzenTextBox Mask="000.000.000-00"
-                           Change=@(args => FormatCpf(args))
-                           MaxLength="11"
+            <RadzenTextBox
+                           oninput="@FormatarCpf"
+                           MaxLength="14"
                            Placeholder="CPF"
                            @bind-Value="PacienteEditado.Cpf"
                            class="w-100" />
@@ -55,8 +55,26 @@
         </div>
     </div>
 </div>
-
+<!-- 
+<InputText @bind-Value="Cpf" oninput="@FormatarCpf" />
+-->
 @code {
+    
+    //private string Cpf { get; set; }
+
+    private void FormatarCpf(ChangeEventArgs e)
+    {
+        string input = new string(e.Value?.ToString().Where(char.IsDigit).ToArray());
+        input = input.Length > 11 ? input.Substring(0, 11) : input;
+
+        PacienteEditado.Cpf = input.Length switch
+        {
+            >= 10 => $"{input[..3]}.{input[3..6]}.{input[6..9]}-{input[9..]}",
+            >= 7  => $"{input[..3]}.{input[3..6]}.{input[6..]}",
+            >= 4  => $"{input[..3]}.{input[3..]}",
+            _     => input
+        };
+    }
 
     [Parameter] public Cliente? Paciente { get; set; } = new();
 
