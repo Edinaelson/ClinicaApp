@@ -20,7 +20,7 @@
     <div class="row mb-3">
         <div class="col-md-12">
             <RadzenTextBox Mask="(00) 00000-0000"
-                           Change=@(args => FormatPhoneNumber(args))
+                           oninput="@FormatPhoneNumber"
                            MaxLength="15"
                            Placeholder="Telefone"
                            @bind-Value="PacienteEditado.Telefone" 
@@ -47,7 +47,6 @@
         </div>
     </div>
     
-
     <div class="row">
         <div class="col-md-12 text-right">
             <RadzenButton Click="Salvar" Text="Salvar" ButtonStyle="ButtonStyle.Primary" class="mr-2" />
@@ -55,12 +54,8 @@
         </div>
     </div>
 </div>
-<!-- 
-<InputText @bind-Value="Cpf" oninput="@FormatarCpf" />
--->
+
 @code {
-    
-    //private string Cpf { get; set; }
 
     private void FormatarCpf(ChangeEventArgs e)
     {
@@ -78,34 +73,25 @@
 
     [Parameter] public Cliente? Paciente { get; set; } = new();
 
-    private void FormatPhoneNumber(string value)
+    private void FormatPhoneNumber(ChangeEventArgs e)
     {
-        if (string.IsNullOrEmpty(value)) return;
-        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
-        if (digitsOnly.Length >= 11)
-        {
-            PacienteEditado.Telefone = $"({digitsOnly.Substring(0, 2)}) {digitsOnly.Substring(2, 5)}-{digitsOnly.Substring(7, 4)}";
-        }
-    }
-    
+        string input = new string(e.Value?.ToString().Where(char.IsDigit).ToArray());
+        input = input.Length > 11 ? input.Substring(0, 11) : input;
 
-    private void FormatCpf(string value)
-    {
-        if (string.IsNullOrEmpty(value)) return;
-        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
-        if (digitsOnly.Length >= 11)
+        PacienteEditado.Telefone = input.Length switch
         {
-            PacienteEditado.Cpf = $"{digitsOnly.Substring(0, 3)}.{digitsOnly.Substring(3, 3)}.{digitsOnly.Substring(6, 3)}-{digitsOnly.Substring(9, 2)}";
-        }
+            >= 11 => $"({input[..2]}) {input[2..7]}-{input[7..]}",
+            >= 8 => $"({input[..2]}) {input[2..6]}-{input[6..]}",
+            >= 6  => $"({input[..2]}) {input[2..6]}",
+            >= 2  => $"({input[..2]}) {input[2..]}",
+            _     => input
+        };
     }
-
 
     private Cliente PacienteEditado = new();
     
     protected override void OnInitialized()
     {
-        
-        
         if (Paciente != null)
         {
             PacienteEditado = new Cliente
