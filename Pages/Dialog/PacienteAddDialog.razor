@@ -1,4 +1,5 @@
-﻿@inject NotificationService NotificationService
+﻿@using ClinicApp.utils
+@inject NotificationService NotificationService
 @inject Data.ApplicationDbContext Db
 @inject DialogService DialogService
 
@@ -20,7 +21,7 @@
     <div class="row mb-3">
         <div class="col-md-12">
             <RadzenTextBox Mask="(00) 00000-0000"
-                           Change=@(args => FormatPhoneNumber(args))
+                           oninput="@FormatPhoneNumber"
                            MaxLength="15"
                            Placeholder="Telefone"
                            @bind-Value="PacienteEditado.Telefone" 
@@ -29,9 +30,9 @@
     </div>
     <div class="row mb-3">
         <div class="col-md-12">
-            <RadzenTextBox Mask="000.000.000-00"
-                           Change=@(args => FormatCpf(args))
-                           MaxLength="11"
+            <RadzenTextBox
+                           oninput="@FormatarCpf"
+                           MaxLength="14"
                            Placeholder="CPF"
                            @bind-Value="PacienteEditado.Cpf"
                            class="w-100" />
@@ -47,7 +48,6 @@
         </div>
     </div>
     
-
     <div class="row">
         <div class="col-md-12 text-right">
             <RadzenButton Click="Salvar" Text="Salvar" ButtonStyle="ButtonStyle.Primary" class="mr-2" />
@@ -58,36 +58,22 @@
 
 @code {
 
-    [Parameter] public Cliente? Paciente { get; set; } = new();
-
-    private void FormatPhoneNumber(string value)
+    private void FormatarCpf(ChangeEventArgs e)
     {
-        if (string.IsNullOrEmpty(value)) return;
-        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
-        if (digitsOnly.Length >= 11)
-        {
-            PacienteEditado.Telefone = $"({digitsOnly.Substring(0, 2)}) {digitsOnly.Substring(2, 5)}-{digitsOnly.Substring(7, 4)}";
-        }
+        PacienteEditado.Cpf = Formatter.FormatarCpf(e.Value?.ToString());
+    }
+
+    private void FormatPhoneNumber(ChangeEventArgs e)
+    {
+        PacienteEditado.Telefone = Formatter.FormatarTelefone(e.Value?.ToString());
     }
     
-
-    private void FormatCpf(string value)
-    {
-        if (string.IsNullOrEmpty(value)) return;
-        var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
-        if (digitsOnly.Length >= 11)
-        {
-            PacienteEditado.Cpf = $"{digitsOnly.Substring(0, 3)}.{digitsOnly.Substring(3, 3)}.{digitsOnly.Substring(6, 3)}-{digitsOnly.Substring(9, 2)}";
-        }
-    }
-
-
+    [Parameter] public Cliente? Paciente { get; set; } = new();
+    
     private Cliente PacienteEditado = new();
     
     protected override void OnInitialized()
     {
-        
-        
         if (Paciente != null)
         {
             PacienteEditado = new Cliente

@@ -18,7 +18,6 @@
                Style="width: 100%; margin-bottom: 10px"
                Adornment="Adornment.Start" />
 
-
 <RadzenDataGrid TItem="Cliente"
                 Data="@filteredPacientes"
                 AllowPaging="true"
@@ -54,6 +53,7 @@
 </RadzenDataGrid>
 
 @code {
+    
     private List<Cliente> pacientes = new();
     private List<Cliente> filteredPacientes = new();
 
