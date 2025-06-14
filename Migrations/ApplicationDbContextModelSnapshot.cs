@@ -17,6 +17,32 @@ namespace ClinicApp.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
 
+            modelBuilder.Entity("ClinicApp.Models.Agendamento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DataAgendamento")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Agendamentos");
+                });
+
             modelBuilder.Entity("ClinicApp.Models.Cliente", b =>
                 {
                     b.Property<int>("Id")
@@ -64,6 +90,22 @@ namespace ClinicApp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Usuarios");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.Agendamento", b =>
+                {
+                    b.HasOne("ClinicApp.Models.Cliente", "Cliente")
+                        .WithMany("Agendamentos")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.Cliente", b =>
+                {
+                    b.Navigation("Agendamentos");
                 });
 #pragma warning restore 612, 618
         }

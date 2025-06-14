@@ -1,6 +1,7 @@
 using ClinicApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,5 +35,9 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+var culture = new CultureInfo("pt-BR");
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 app.Run();

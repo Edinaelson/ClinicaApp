@@ -1,6 +1,8 @@
 ﻿@page "/Agenda"
+@using ClinicApp.Data
 @using ClinicApp.Pages.Dialog
 @using ClinicApp.utils
+@using Microsoft.EntityFrameworkCore
 @inject DialogService DialogService
 
 <style>
@@ -72,12 +74,31 @@
 
 <EventConsole @ref=@console />
 @code {
+    
+    [Inject] public ApplicationDbContext Db { get; set; }
+
+    IList<Appointment> appointments = new List<Appointment>();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        appointments = await Db.Agendamentos
+            .Where(a => a.DataAgendamento != null)
+            .Select(a => new Appointment
+            {
+                Start = a.DataAgendamento.Value,
+                End = a.DataAgendamento.Value.AddHours(1), // ou outro tempo
+                Text = a.Cliente.Nome
+            })
+            .ToListAsync();
+    }
+    
     RadzenScheduler<Appointment> scheduler;
     EventConsole console;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
 
     bool showHeader = true;
-
+    
+    /*
     IList<Appointment> appointments = new List<Appointment>
     {
         new Appointment { Start = DateTime.Today.AddDays(-2), End = DateTime.Today.AddDays(-2), Text = "Birthday" },
@@ -88,7 +109,7 @@
         new Appointment { Start = DateTime.Today.AddHours(14), End = DateTime.Today.AddHours(14).AddMinutes(30), Text = "Dentist appointment" },
         new Appointment { Start = DateTime.Today.AddDays(1), End = DateTime.Today.AddDays(12), Text = "Vacation" },
     };
-
+    */
     void OnDaySelect(SchedulerDaySelectEventArgs args)
     {
         console.Log($"DaySelect: Day={args.Day} AppointmentCount={args.Appointments.Count()}");

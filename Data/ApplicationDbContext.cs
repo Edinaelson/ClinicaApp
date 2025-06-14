@@ -10,5 +10,7 @@ public class ApplicationDbContext : DbContext
    public DbSet<Usuario> Usuarios { get; set; }
    public DbSet<Cliente> Clientes { get; set; }
    
+   public DbSet<Agendamento> Agendamentos { get; set; }
+   
     
 }

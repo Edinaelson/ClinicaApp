@@ -1,4 +1,5 @@
-﻿@using ClinicApp.utils
+﻿@using System.Reflection.Metadata
+@using ClinicApp.utils
 @inject NotificationService NotificationService
 @inject Data.ApplicationDbContext Db
 @inject DialogService DialogService
@@ -43,7 +44,6 @@
         <div class="col-md-12">
             <RadzenDatePicker Placeholder="Data De Nascimento"
                               @bind-Value="PacienteEditado.DataNascimento"
-                              DateFormat="dd/MM/yyyy"
                               class="w-100"/>
         </div>
     </div>
@@ -67,6 +67,13 @@
     {
         PacienteEditado.Telefone = Formatter.FormatarTelefone(e.Value?.ToString());
     }
+
+    /*
+    private void FormatarDataDeNacimento(ChangeEventArgs e)
+    {
+        PacienteEditado.DataNascimento = Formatter.FormatarDataDeNascimento(e.Value?.ToString());
+    }
+    */
     
     [Parameter] public Cliente? Paciente { get; set; } = new();
     

@@ -20,4 +20,7 @@ public class Cliente
     [Required(ErrorMessage = "CPF obrigatorio")]
     public  string? Cpf { get; set; }
     
+    public ICollection<Agendamento> Agendamentos { get; set; } = new List<Agendamento>();
+
+    
 }
