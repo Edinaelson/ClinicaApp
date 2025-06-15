@@ -6,6 +6,8 @@ public class Appointment
     public DateTime End { get; set; }
     public string Text { get; set; }
     
+    public string Titulo { get; set; }
+    
     public string Cliente { get; set; }
     
 }

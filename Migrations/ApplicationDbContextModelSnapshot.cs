@@ -23,22 +23,31 @@ namespace ClinicApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ClientId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DataAgendamento")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<TimeSpan?>("HoraFim")
                         .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan?>("HoraInicio")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TituloId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("TituloId");
 
                     b.ToTable("Agendamentos");
                 });
@@ -73,6 +82,36 @@ namespace ClinicApp.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("ClinicApp.Models.Status", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StatusText")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Status");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.Titulo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Texto")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Titulo");
+                });
+
             modelBuilder.Entity("ClinicApp.Models.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -100,7 +139,23 @@ namespace ClinicApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ClinicApp.Models.Status", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ClinicApp.Models.Titulo", "Titulo")
+                        .WithMany()
+                        .HasForeignKey("TituloId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Cliente");
+
+                    b.Navigation("Status");
+
+                    b.Navigation("Titulo");
                 });
 
             modelBuilder.Entity("ClinicApp.Models.Cliente", b =>
