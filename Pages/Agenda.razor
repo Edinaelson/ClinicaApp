@@ -82,12 +82,15 @@
     protected override async Task OnInitializedAsync()
     {
         appointments = await Db.Agendamentos
-            .Where(a => a.DataAgendamento != null)
+            .Where(a => a.DataAgendamento != null && a.HoraInicio != null && a.HoraFim != null)
+            .Include(a => a.Titulo)
             .Select(a => new Appointment
             {
-                Start = a.DataAgendamento.Value,
-                End = a.DataAgendamento.Value.AddHours(1), // ou outro tempo
-                Text = a.Cliente.Nome
+                Start = a.DataAgendamento.Value.Date.Add(a.HoraInicio.Value),
+                End = a.DataAgendamento.Value.Date.Add(a.HoraFim.Value),
+                Text = a.Cliente.Nome,
+                Titulo = a.Titulo.Texto
+                    
             })
             .ToListAsync();
     }
@@ -156,7 +159,8 @@
         {
             Start = args.Data.Start,
             End = args.Data.End,
-            Text = args.Data.Text
+            Text = args.Data.Text,
+            Titulo = args.Data.Titulo
         };
 
         var data = await DialogService.OpenAsync<EditAppointment>("Edit Appointment", new Dictionary<string, object> { { "Appointment", copy } });
@@ -167,6 +171,7 @@
             args.Data.Start = data.Start;
             args.Data.End = data.End;
             args.Data.Text = data.Text;
+            args.Data.Titulo = data.Titulo;
         }
 
         await scheduler.Reload();
