@@ -1,53 +1,112 @@
-﻿@using ClinicApp.utils
-@inject DialogService DialogService;
+﻿@using ClinicApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject DialogService DialogService
+@inject Data.ApplicationDbContext Db
+@inject NotificationService NotificationService
 
-<RadzenTemplateForm TItem="Appointment" Data="@model" Submit=@OnSubmit>
+<RadzenTemplateForm TItem="Agendamento" Data="@model" Submit="@OnSubmit">
     <RadzenStack Gap="1rem">
-        
+
+        <!-- Dropdown de Título -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
-            <RadzenLabel Text="titulo" Style="width: 4rem;" />
-            <RadzenTextBox @bind-Value="@model.Cliente" Name="Text" Style="width: 12rem;" />
-            <RadzenRequiredValidator Component="Text" Text="Title is required" />
+            <RadzenLabel Text="Título" Style="width: 6rem;" />
+            <RadzenDropDown @bind-Value="@selectedTituloId"
+                            Data="@titulos"
+                            TextProperty="Texto"
+                            ValueProperty="Id"
+                            Placeholder="Selecione um título"
+                            Style="width: 14rem;" />
         </RadzenStack>
-        
+
+        <!-- Dropdown de Cliente -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
-            <RadzenLabel Text="Cliente" Style="width: 4rem;"/>
-            <RadzenTextBox @bind-Value="@model.Cliente" Name="Text" Style="width: 12rem;"/>
-            <RadzenRequiredValidator Component="Text" Text="Title is required"/>
+            <RadzenLabel Text="Cliente" Style="width: 6rem;" />
+            <RadzenDropDown @bind-Value="@selectedClienteId"
+                            Data="@clientes"
+                            TextProperty="Nome"
+                            ValueProperty="Id"
+                            Placeholder="Selecione um cliente"
+                            Style="width: 14rem;" />
         </RadzenStack>
+
+        <!-- Campo Data/Hora de Início -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
-            <RadzenLabel Text="Start" Style="width: 4rem;"/>
-            <RadzenDatePicker @bind-Value="@model.Start" Name="Start" ShowTime="true" Style="width: 12rem;"/>
-            <RadzenRequiredValidator Component="Start" Text="Start is required"/>
+            <RadzenLabel Text="Início" Style="width: 6rem;" />
+            <RadzenDatePicker @bind-Value="@startDateTime" Name="Start" ShowTime="true" Style="width: 14rem;" />
         </RadzenStack>
+
+        <!-- Campo Data/Hora de Fim -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
-            <RadzenLabel Text="End" Style="width: 4rem;"/>
-            <RadzenDatePicker Name="End" @bind-Value="@model.End" ShowTime="true" Style="width: 12rem;"/>
-            <RadzenRequiredValidator Component="End" Text="End is required"/>
+            <RadzenLabel Text="Fim" Style="width: 6rem;" />
+            <RadzenDatePicker @bind-Value="@endDateTime" Name="End" ShowTime="true" Style="width: 14rem;" />
         </RadzenStack>
+
+        <!-- Botão Salvar -->
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Save"/>
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Salvar" />
         </RadzenStack>
+
     </RadzenStack>
 </RadzenTemplateForm>
 
 @code {
-    [Parameter]
-    public DateTime Start { get; set; }
+    [Parameter] public DateTime Start { get; set; }
+    [Parameter] public DateTime End { get; set; }
 
-    [Parameter]
-    public DateTime End { get; set; }
+    Agendamento model = new Agendamento();
 
-    Appointment model = new Appointment();
+    List<Titulo> titulos = new();
+    List<Cliente> clientes = new();
 
-    protected override void OnParametersSet()
+    int selectedTituloId;
+    int selectedClienteId;
+    DateTime startDateTime;
+    DateTime endDateTime;
+
+    protected override async Task OnInitializedAsync()
     {
-        model.Start = Start;
-        model.End = End;
+        titulos = await Db.Titulo.ToListAsync();
+        clientes = await Db.Clientes.ToListAsync();
+
+        startDateTime = Start;
+        endDateTime = End;
     }
 
-    void OnSubmit(Appointment model)
+    async Task OnSubmit(Agendamento model)
     {
-        DialogService.Close(model);
+        var titulo = titulos.FirstOrDefault(t => t.Id == selectedTituloId);
+        var cliente = clientes.FirstOrDefault(c => c.Id == selectedClienteId);
+
+        if (titulo == null || cliente == null)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Erro", "Selecione um título e um cliente válido.");
+            return;
+        }
+
+        model.DataAgendamento = startDateTime.Date;
+        model.HoraInicio = startDateTime.TimeOfDay;
+        model.HoraFim = endDateTime.TimeOfDay;
+
+        model.TituloId = titulo.Id;
+        model.ClienteId = cliente.Id;
+        model.StatusId = 1; // Exemplo: Status inicial padrão (como "Agendado"). Ajuste o ID conforme seu banco.
+
+        // Não deixe os objetos de navegação preenchidos para o EF não tentar inserir Titulo/Cliente de novo
+        model.Titulo = null!;
+        model.Cliente = null!;
+        model.Status = null!;
+
+        try
+        {
+            Db.Agendamentos.Add(model);
+            await Db.SaveChangesAsync();
+
+            NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento salvo com sucesso.");
+            DialogService.Close(model);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Erro ao salvar", ex.Message);
+        }
     }
 }

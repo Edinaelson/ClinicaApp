@@ -4,6 +4,7 @@
 @using ClinicApp.utils
 @using Microsoft.EntityFrameworkCore
 @inject DialogService DialogService
+@inject NotificationService NotificationService
 
 <style>
     /* Remove margens/paddings internas que quebram o arredondamento */
@@ -47,10 +48,10 @@
 </RadzenStack>
 </div>
 <div style="justify-items: center">
-    <RadzenScheduler @ref=@scheduler 
+    <RadzenScheduler @ref="scheduler"
                      SlotRender=@OnSlotRender
                      Style="height: 570px; width: 940px; border: 1px solid #ccc; border-radius: 12px; overflow: hidden;"
-                     TItem="Appointment"
+                     TItem="Agendamento"
                      Data=@appointments
                      StartProperty="Start"
                      EndProperty="End"
@@ -61,7 +62,6 @@
                      AppointmentSelect=@OnAppointmentSelect
                      AppointmentRender=@OnAppointmentRender
                      DaySelect="@OnDaySelect"
-    
                      AppointmentMove=@OnAppointmentMove >
     
         <RadzenDayView />
@@ -77,25 +77,20 @@
     
     [Inject] public ApplicationDbContext Db { get; set; }
 
-    IList<Appointment> appointments = new List<Appointment>();
+    List<Agendamento> appointments = new();
     
     protected override async Task OnInitializedAsync()
     {
         appointments = await Db.Agendamentos
-            .Where(a => a.DataAgendamento != null && a.HoraInicio != null && a.HoraFim != null)
             .Include(a => a.Titulo)
-            .Select(a => new Appointment
-            {
-                Start = a.DataAgendamento.Value.Date.Add(a.HoraInicio.Value),
-                End = a.DataAgendamento.Value.Date.Add(a.HoraFim.Value),
-                Text = a.Cliente.Nome,
-                Titulo = a.Titulo.Texto
-                    
-            })
+            .Include(a => a.Cliente)
+            .Include(a => a.Status)
+            .Where(a => a.DataAgendamento != null && a.HoraInicio != null && a.HoraFim != null)
             .ToListAsync();
     }
     
-    RadzenScheduler<Appointment> scheduler;
+    RadzenScheduler<Agendamento> scheduler;
+    
     EventConsole console;
     Dictionary<DateTime, string> events = new Dictionary<DateTime, string>();
 
@@ -135,49 +130,97 @@
 
     async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
     {
-        console.Log($"SlotSelect: Start={args.Start} End={args.End}");
-
-        if (args.View.Text != "Year")
+        try
         {
-            Appointment data = await DialogService.OpenAsync<AddAppointment>("Add Appointment",
-                new Dictionary<string, object> { { "Start", args.Start }, { "End", args.End } });
-
-            if (data != null)
+            if (args == null)
             {
-                appointments.Add(data);
-                // Either call the Reload method or reassign the Data property of the Scheduler
-                await scheduler.Reload();
+                NotificationService.Notify(NotificationSeverity.Error, "Erro", "Parâmetro args está nulo.");
+                return;
+            }
+
+            console?.Log($"Slot selecionado: Start={args.Start}, End={args.End}, View={(args.View?.Text ?? "null")}");
+
+            if (args.View != null && args.View.Text != "Year")
+            {
+                if (DialogService == null)
+                {
+                    NotificationService.Notify(NotificationSeverity.Error, "Erro", "DialogService está nulo.");
+                    return;
+                }
+
+                var data = await DialogService.OpenAsync<AddAppointment>("Novo Agendamento",
+                    new Dictionary<string, object>
+                    {
+                        { "Start", args.Start },
+                        { "End", args.End }
+                    });
+
+                if (data != null)
+                {
+                    appointments ??= new List<Agendamento>();
+                    appointments.Add(data);
+
+                    if (scheduler != null)
+                    {
+                        await scheduler.Reload();
+                    }
+                    else
+                    {
+                        NotificationService.Notify(NotificationSeverity.Warning, "Aviso", "scheduler é nulo.");
+                    }
+                }
             }
         }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Erro inesperado no OnSlotSelect", ex.Message);
+            console?.Log($"Erro no OnSlotSelect: {ex}");
+        }
     }
 
-    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Appointment> args)
+
+
+    
+    async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Agendamento> args)
     {
-        console.Log($"AppointmentSelect: Appointment={args.Data.Text}");
-
-        var copy = new Appointment
+        if (args.Data == null)
         {
-            Start = args.Data.Start,
-            End = args.Data.End,
-            Text = args.Data.Text,
-            Titulo = args.Data.Titulo
-        };
-
-        var data = await DialogService.OpenAsync<EditAppointment>("Edit Appointment", new Dictionary<string, object> { { "Appointment", copy } });
-
-        if (data != null)
-        {
-            // Update the appointment
-            args.Data.Start = data.Start;
-            args.Data.End = data.End;
-            args.Data.Text = data.Text;
-            args.Data.Titulo = data.Titulo;
+            console.Log("AppointmentSelect: args.Data is null");
+            return;
         }
 
-        await scheduler.Reload();
+        console.Log($"AppointmentSelect: Appointment Cliente={(args.Data.Cliente?.Nome ?? "Cliente null", args.Data.Titulo.Texto)}");
+
+        var copy = new Agendamento
+        {
+            Id = args.Data.Id,
+            DataAgendamento = args.Data.DataAgendamento,
+            HoraInicio = args.Data.HoraInicio,
+            HoraFim = args.Data.HoraFim,
+            Titulo = args.Data.Titulo,
+            Cliente = args.Data.Cliente,
+            Status = args.Data.Status
+        };
+
+        var result = await DialogService.OpenAsync<EditAppointment>("Editar Agendamento", new Dictionary<string, object> { { "Appointment", copy } });
+
+        if (result != null)
+        {
+            args.Data.DataAgendamento = result.DataAgendamento;
+            args.Data.HoraInicio = result.HoraInicio;
+            args.Data.HoraFim = result.HoraFim;
+            args.Data.Titulo = result.Titulo;
+            args.Data.Cliente = result.Cliente;
+            args.Data.Status = result.Status;
+
+            await Db.SaveChangesAsync();
+            await scheduler.Reload();
+        }
     }
 
-    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Appointment> args)
+
+
+    void OnAppointmentRender(SchedulerAppointmentRenderEventArgs<Agendamento> args)
     {
         // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
 
@@ -189,24 +232,21 @@
 
     async Task OnAppointmentMove(SchedulerAppointmentMoveEventArgs args)
     {
-        var draggedAppointment = appointments.FirstOrDefault(x => x == args.Appointment.Data);
+        var draggedAppointment = args.Appointment.Data as Agendamento;
 
         if (draggedAppointment != null)
         {
-            var duration = draggedAppointment.End - draggedAppointment.Start;
+            var startAntigo = draggedAppointment.Start;
+            var endAntigo = draggedAppointment.End;
+            var duration = endAntigo - startAntigo;
 
-            if (args.SlotDate.TimeOfDay == TimeSpan.Zero)
-            {
-                draggedAppointment.Start = args.SlotDate.Date.Add(draggedAppointment.Start.TimeOfDay);
-            }
-            else
-            {
-                draggedAppointment.Start = args.SlotDate;
-            }
+            draggedAppointment.DataAgendamento = args.SlotDate.Date;
+            draggedAppointment.HoraInicio = args.SlotDate.TimeOfDay;
+            draggedAppointment.HoraFim = draggedAppointment.HoraInicio + duration;
 
-            draggedAppointment.End = draggedAppointment.Start.Add(duration);
-
+            await Db.SaveChangesAsync();
             await scheduler.Reload();
         }
     }
+
 }
