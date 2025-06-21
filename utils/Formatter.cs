@@ -1,4 +1,6 @@
-﻿namespace ClinicApp.utils;
+﻿using System.Linq;
+
+namespace ClinicApp.utils;
 
 public class Formatter
 {

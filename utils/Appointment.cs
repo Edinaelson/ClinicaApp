@@ -1,4 +1,6 @@
-﻿namespace ClinicApp.utils;
+﻿using System;
+
+namespace ClinicApp.utils;
 
 public class Appointment
 {

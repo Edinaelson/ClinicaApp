@@ -2,6 +2,9 @@ using ClinicApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 using System.Globalization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
