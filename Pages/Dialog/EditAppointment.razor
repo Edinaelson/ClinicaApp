@@ -9,20 +9,22 @@
         <!-- Título -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Título" Style="width: 6rem;" />
-            <RadzenDropDown @bind-Value="@model.Titulo.Id"
+            <RadzenDropDown @bind-Value="@selectedTituloId"
                             Data="@titulos"
                             TextProperty="Texto"
                             ValueProperty="Id"
+                            Placeholder="Selecione"
                             Style="width: 14rem;" />
         </RadzenStack>
 
         <!-- Cliente -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Paciente" Style="width: 6rem;" />
-            <RadzenDropDown @bind-Value="@model.Cliente.Id"
+            <RadzenDropDown @bind-Value="@selectedClienteId"
                             Data="@clientes"
                             TextProperty="Nome"
                             ValueProperty="Id"
+                            Placeholder="Selecione"
                             Style="width: 14rem;" />
         </RadzenStack>
 
@@ -55,11 +57,15 @@
     public Agendamento Appointment { get; set; } = new();
 
     Agendamento model = new();
+
     DateTime? dataInicio;
     DateTime? dataFim;
 
     List<Titulo> titulos = new();
     List<Cliente> clientes = new();
+
+    int selectedTituloId;
+    int selectedClienteId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,49 +75,59 @@
 
     protected override void OnParametersSet()
     {
-        model = new Agendamento
-        {
-            Id = Appointment.Id,
-            DataAgendamento = Appointment.DataAgendamento,
-            HoraInicio = Appointment.HoraInicio,
-            HoraFim = Appointment.HoraFim,
-            Titulo = Appointment.Titulo,
-            Cliente = Appointment.Cliente,
-            Status = Appointment.Status
-        };
+        model = Appointment;
 
         if (model.DataAgendamento.HasValue && model.HoraInicio.HasValue)
             dataInicio = model.DataAgendamento.Value.Date.Add(model.HoraInicio.Value);
 
         if (model.DataAgendamento.HasValue && model.HoraFim.HasValue)
             dataFim = model.DataAgendamento.Value.Date.Add(model.HoraFim.Value);
+
+        // Preencher os IDs selecionados para os dropdowns
+        selectedTituloId = model.Titulo?.Id ?? 0;
+        selectedClienteId = model.Cliente?.Id ?? 0;
     }
 
     async Task OnSubmit(Agendamento model)
     {
-        // Validar Titulo e Cliente selecionados
-        var tituloSelecionado = await Db.Titulo.FindAsync(model.Titulo.Id);
-        var clienteSelecionado = await Db.Clientes.FindAsync(model.Cliente.Id);
-        var status = await Db.Status.FirstOrDefaultAsync(); // Status default (pode customizar depois)
+        var agendamento = await Db.Agendamentos
+            .Include(a => a.Titulo)
+            .Include(a => a.Cliente)
+            .Include(a => a.Status)
+            .FirstOrDefaultAsync(a => a.Id == model.Id);
 
-        if (tituloSelecionado == null || clienteSelecionado == null || dataInicio == null || dataFim == null)
+        if (agendamento == null)
         {
-            NotificationService.Notify(NotificationSeverity.Error, "Erro", "Preencha todos os campos corretamente.");
+            NotificationService.Notify(NotificationSeverity.Error, "Erro", "Agendamento não encontrado.");
             return;
         }
 
-        model.Titulo = tituloSelecionado;
-        model.Cliente = clienteSelecionado;
-        model.Status = status!;
+        var titulo = await Db.Titulo.FindAsync(selectedTituloId);
+        var cliente = await Db.Clientes.FindAsync(selectedClienteId);
+        var status = await Db.Status.FirstOrDefaultAsync(); // Altere aqui se tiver status diferente
 
-        model.DataAgendamento = dataInicio.Value.Date;
-        model.HoraInicio = dataInicio.Value.TimeOfDay;
-        model.HoraFim = dataFim.Value.TimeOfDay;
+        if (titulo == null || cliente == null || dataInicio == null)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Erro", "Preencha todos os campos.");
+            return;
+        }
 
-        Db.Agendamentos.Update(model);
+        if (dataFim == null || dataInicio > dataFim)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Erro", "Hora inicio é maior que hora de terminio");
+            return;
+        }
+
+        agendamento.DataAgendamento = dataInicio.Value.Date;
+        agendamento.HoraInicio = dataInicio.Value.TimeOfDay;
+        agendamento.HoraFim = dataFim.Value.TimeOfDay;
+        agendamento.Titulo = titulo;
+        agendamento.Cliente = cliente;
+        agendamento.Status = status!;
+
         await Db.SaveChangesAsync();
 
         NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento atualizado!");
-        DialogService.Close(model);
+        DialogService.Close(agendamento);
     }
 }
