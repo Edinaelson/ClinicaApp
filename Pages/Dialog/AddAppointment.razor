@@ -1,9 +1,10 @@
 ﻿@using ClinicApp.Models
+@using ClinicApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject DialogService DialogService
 @inject Data.ApplicationDbContext Db
 @inject NotificationService NotificationService
-
+@inject EmailService EmailService
 <RadzenTemplateForm TItem="Agendamento" Data="@model" Submit="@OnSubmit">
     <RadzenStack Gap="1rem">
 
@@ -101,7 +102,13 @@
             Db.Agendamentos.Add(model);
             await Db.SaveChangesAsync();
 
-            NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento salvo com sucesso.");
+            // Enviar e-mail após salvar
+            var clienteEmail = cliente.Email;
+            var assunto = "Confirmação de Agendamento";
+            var mensagem = $"Olá {cliente.Nome}, seu agendamento foi realizado com sucesso para o dia {startDateTime:dd/MM/yyyy} às {startDateTime:HH:mm}.";
+            await EmailService.SendEmailAsync(clienteEmail, assunto, mensagem);
+
+            NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento salvo com sucesso e e-mail enviado.");
             DialogService.Close(model);
         }
         catch (Exception ex)
