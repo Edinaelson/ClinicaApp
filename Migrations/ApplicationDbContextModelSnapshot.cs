@@ -82,6 +82,28 @@ namespace ClinicApp.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("ClinicApp.Models.Procedimento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Preco")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("UrlImage")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Procedimentos");
+                });
+
             modelBuilder.Entity("ClinicApp.Models.Status", b =>
                 {
                     b.Property<int>("Id")

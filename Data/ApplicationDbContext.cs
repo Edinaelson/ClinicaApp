@@ -12,6 +12,7 @@ public class ApplicationDbContext : DbContext
    public DbSet<Agendamento> Agendamentos { get; set; }
    public DbSet<Status> Status { get; set; }
    public DbSet<Titulo> Titulo { get; set; }
+   public DbSet<Procedimento> Procedimentos { get; set; }
    
     
 }

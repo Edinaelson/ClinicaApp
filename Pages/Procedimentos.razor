@@ -1,0 +1,38 @@
+@page "/procedimentos"
+@using ClinicApp.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+@inject NavigationManager Navigation
+
+<RadzenHeading Size="H3" Text="Procedimentos disponíveis" />
+
+<RadzenRow>
+    @foreach (var item in Procedimento)
+    {
+        <RadzenColumn Width="3">
+            <RadzenCard Style="margin-bottom: 1rem; width: 190px;">
+                <img src="@item.UrlImage" alt="@item.Nome" style="width: 100%; height: 100px; object-fit: cover;" />
+                <div class="p-2">
+                    <h6>@item.Nome</h6>
+                    <p>Preço: @item.Preco.ToString("C")</p>
+                    <RadzenButton Text="Agendar" Click="@(() => Agendar(item.Id))" Style="width: 100%;" />
+                </div>
+            </RadzenCard>
+        </RadzenColumn>
+    }
+</RadzenRow>
+
+@code {
+
+    List<Procedimento> Procedimento;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Procedimento = await Db.Procedimentos.ToListAsync();
+    }
+
+    void Agendar(int id)
+    {
+        Navigation.NavigateTo($"/agendamento/{id}");
+    }
+}
