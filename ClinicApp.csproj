@@ -21,7 +21,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="images\" />
+    <None Include="wwwroot\images\img01.png" />
+    <None Include="wwwroot\images\img02.png" />
+    <None Include="wwwroot\images\img03.png" />
+    <None Include="wwwroot\images\img04.png" />
+    <None Include="wwwroot\images\img05.png" />
+    <None Include="wwwroot\images\procedimentos\Criolipólise.jpg" />
+    <None Include="wwwroot\images\procedimentos\Harmonização Facial.jpg" />
+    <None Include="wwwroot\images\procedimentos\Lipoaspiração e Lipo HD.jpg" />
+    <None Include="wwwroot\images\procedimentos\Rinomodelação.jpg" />
+    <None Include="wwwroot\images\procedimentos\Tratamentos com Laser.jpg" />
   </ItemGroup>
 
 </Project>
