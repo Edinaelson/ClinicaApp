@@ -101,6 +101,18 @@
         {
             Db.Agendamentos.Add(model);
             await Db.SaveChangesAsync();
+            
+            // Criar e salvar relatório no banco
+            var relatorio = new RelatorioConsulta
+            {
+                Procedimento = titulo.Texto,
+                Preco = titulo.Price,
+                DataAgendada = model.DataAgendamento.Value,
+                ClienteId = cliente.Id
+            };
+
+            Db.RelatoriosConsultas.Add(relatorio);
+            await Db.SaveChangesAsync();
 
             // Enviar e-mail após salvar
             var clienteEmail = cliente.Email;
