@@ -14,5 +14,6 @@ public class ApplicationDbContext : DbContext
    public DbSet<Titulo> Titulo { get; set; }
    public DbSet<Procedimento> Procedimentos { get; set; }
    
-    
+   public DbSet<RelatorioConsulta> RelatoriosConsultas { get; set; }
+   
 }

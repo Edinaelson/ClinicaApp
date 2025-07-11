@@ -1,0 +1,47 @@
+@page "/relatorios"
+
+@using ClinicApp.Data
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Db
+
+<h3>Relatórios de Consultas por Cliente</h3>
+
+<RadzenDropDown TValue="int"
+                Data="@clientes"
+                TextProperty="Nome"
+                ValueProperty="Id"
+                @bind-Value="clienteSelecionadoId"
+                Placeholder="Selecione um cliente"
+                Change="@(async _ => await CarregarRelatorios())"
+                Style="width: 300px; margin-bottom: 1rem;" />
+
+@if (relatorios != null)
+{
+    <RadzenDataGrid Data="@relatorios" TItem="RelatorioConsulta" ShowPagingSummary="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="RelatorioConsulta" Property="Procedimento" Title="Procedimento" />
+            <RadzenDataGridColumn TItem="RelatorioConsulta" Property="Preco" Title="Preço" FormatString="{0:C}" />
+            <RadzenDataGridColumn TItem="RelatorioConsulta" Property="DataAgendada" Title="Data" FormatString="{0:dd/MM/yyyy}" />
+        </Columns>
+    </RadzenDataGrid>
+}
+
+@code {
+    List<Cliente> clientes = new();
+    List<RelatorioConsulta>? relatorios;
+    int clienteSelecionadoId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        clientes = await Db.Clientes.OrderBy(c => c.Nome).ToListAsync();
+    }
+
+    async Task CarregarRelatorios()
+    {
+        relatorios = await Db.RelatoriosConsultas
+            .Where(r => r.ClienteId == clienteSelecionadoId)
+            .OrderByDescending(r => r.DataAgendada)
+            .ToListAsync();
+    }
+    
+}

@@ -104,6 +104,32 @@ namespace ClinicApp.Migrations
                     b.ToTable("Procedimentos");
                 });
 
+            modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataAgendada")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Preco")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Procedimento")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("RelatoriosConsultas");
+                });
+
             modelBuilder.Entity("ClinicApp.Models.Status", b =>
                 {
                     b.Property<int>("Id")
@@ -124,6 +150,9 @@ namespace ClinicApp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Texto")
                         .IsRequired()
@@ -178,6 +207,17 @@ namespace ClinicApp.Migrations
                     b.Navigation("Status");
 
                     b.Navigation("Titulo");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>
+                {
+                    b.HasOne("ClinicApp.Models.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("ClinicApp.Models.Cliente", b =>
