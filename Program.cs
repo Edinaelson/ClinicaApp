@@ -2,10 +2,9 @@ using ClinicApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Radzen;
 using System.Globalization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
+using ClinicApp.Services;
+using QuestPDF.Infrastructure;
+QuestPDF.Settings.License = LicenseType.Community;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -14,7 +13,9 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
-builder.Services.AddScoped<ClinicApp.Services.EmailService>();
+builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<RelatorioPdfService>();
+
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
