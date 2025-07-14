@@ -1,8 +1,18 @@
 @page "/relatorios"
 
 @using ClinicApp.Data
+@using ClinicApp.Services
 @using Microsoft.EntityFrameworkCore
+@inject NotificationService NotificationService
 @inject ApplicationDbContext Db
+@inject RelatorioPdfService PdfService
+@inject EmailService EmailService
+
+@if (relatorios?.Count > 0)
+{
+    <RadzenButton Text="Enviar por Email (PDF)" Click="@EnviarRelatorioPorEmail" Icon="email" Style="margin-bottom: 1rem;" />
+}
+
 
 <h3>Relatórios de Consultas por Cliente</h3>
 
@@ -44,4 +54,32 @@
             .ToListAsync();
     }
     
+    async Task EnviarRelatorioPorEmail()
+    {
+        var cliente = clientes.FirstOrDefault(c => c.Id == clienteSelecionadoId);
+        if (cliente is null || relatorios is null || !relatorios.Any())
+            return;
+
+        var logoPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "logo.png");
+
+        var pdfBytes = PdfService.GerarRelatorio(relatorios, cliente.Nome, logoPath);
+
+        var assunto = "Resumo das suas consultas";
+        var mensagem = $"Olá {cliente.Nome},\n\nEm anexo está o resumo das suas consultas/procedimentos com a nossa clínica.\n\nAgradecemos a confiança!\n\nEquipe da Clínica.";
+
+        await EmailService.SendEmailWithAttachmentAsync(
+            cliente.Email,
+            assunto,
+            mensagem,
+            pdfBytes,
+            "relatorio.pdf");
+        
+        NotificationService.Notify(new NotificationMessage
+        {
+            Severity = NotificationSeverity.Success,
+            Summary = "E-mail enviado",
+            Detail = "O relatório foi enviado com sucesso para o cliente!",
+            Duration = 3000
+        });
+    }
 }
