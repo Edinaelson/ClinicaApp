@@ -6,8 +6,11 @@
 
 <RadzenHeading Size="H3" Text="Procedimentos disponíveis" />
 
+<div></div>
+<RadzenTextBox @bind-Value="filtro" Placeholder="🔍 Pesquisar procedimento..." Style="width: 300px; margin-bottom: 20px;" />
+
 <RadzenRow>
-    @foreach (var item in Procedimento)
+    @foreach (var item in Procedimento.Where(p => string.IsNullOrEmpty(filtro) || p.Nome.Contains(filtro, StringComparison.OrdinalIgnoreCase)))
     {
         <RadzenColumn Width="3">
             <RadzenCard Style="margin-bottom: 1rem; width: 190px;">
@@ -20,11 +23,12 @@
             </RadzenCard>
         </RadzenColumn>
     }
+
 </RadzenRow>
 
 @code {
-
     List<Procedimento> Procedimento;
+    string filtro = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -36,3 +40,4 @@
         Navigation.NavigateTo($"/agendamento/{id}");
     }
 }
+
