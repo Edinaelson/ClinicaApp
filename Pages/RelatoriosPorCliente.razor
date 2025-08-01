@@ -16,6 +16,12 @@
         color: transparent; /* Torna a cor do texto transparente para que o gradiente apareça */
         display: inline-block; /* Importante para que o gradiente se aplique corretamente ao texto */
     }
+    
+    .gradientColorEmail{
+        background: #2a649b;
+        background: linear-gradient(90deg, rgba(42, 100, 155, 1) 0%, rgba(47, 107, 160, 1) 0%, rgba(87, 171, 199, 1) 50%, rgba(42, 108, 155, 1) 100%);
+    }
+    
 </style>
 
 @if (relatorios?.Count > 0)
@@ -60,7 +66,7 @@
                               Text="Enviar por Email"
                               Size="ButtonSize.Small"
                               Click="@(() => EnviarConsultaIndividual(relatorio))"
-                              ButtonStyle="ButtonStyle.Info"
+                              ButtonStyle="ButtonStyle.Info" 
                               Style="margin-top: 10px;" />
             </div>
         </Template>
