@@ -16,9 +16,14 @@ builder.Services.AddScoped<ContextMenuService>();
 builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<RelatorioPdfService>();
 
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.MaximumReceiveMessageSize = 1024 * 1024 * 20; // 20 MB, ajuste conforme desejar
+    });
+
 
 builder.Services.AddRazorPages();
-builder.Services.AddServerSideBlazor();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=clinic.db"));
 
