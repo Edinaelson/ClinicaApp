@@ -1,8 +1,10 @@
 @page "/procedimentos"
 @using ClinicApp.Data
+@using ClinicApp.Pages.Dialog.Procedimentos
 @using Microsoft.EntityFrameworkCore
 @inject ApplicationDbContext Db
 @inject NavigationManager Navigation
+@inject DialogService DialogService
 
 <RadzenHeading Size="H3" Text="Procedimentos disponíveis" />
 
@@ -26,6 +28,16 @@
 
 </RadzenRow>
 
+<!-- Botão flutuante -->
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+    <RadzenButton
+        Text="Adicionar"
+        Icon="add"
+        ButtonStyle="ButtonStyle.Primary"
+        Size="ButtonSize.Medium"
+        Click="@AbrirDialog" />
+</div>
+
 @code {
     List<Procedimento> Procedimento;
     string filtro = "";
@@ -38,6 +50,22 @@
     void Agendar(int id)
     {
         Navigation.NavigateTo($"/agendamento/{id}");
+    }
+    
+    async Task AbrirDialog()
+    {
+        var result = await DialogService.OpenAsync<AddProcedimento>(
+            "Novo Procedimento",
+            null,
+            new DialogOptions() { Width = "500px", Height = "auto" }
+        );
+
+        // Atualiza lista se salvar
+        if (result is Procedimento novo)
+        {
+            Procedimento.Add(novo);
+            StateHasChanged();
+        }
     }
 }
 
