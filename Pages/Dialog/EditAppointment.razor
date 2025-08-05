@@ -9,9 +9,9 @@
         <!-- Título -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Título" Style="width: 6rem;" />
-            <RadzenDropDown @bind-Value="@selectedTituloId"
-                            Data="@titulos"
-                            TextProperty="Texto"
+            <RadzenDropDown @bind-Value="@selectedProcedimentoId"
+                            Data="@procedimentos"
+                            TextProperty="Nome"
                             ValueProperty="Id"
                             Placeholder="Selecione"
                             Style="width: 14rem;" />
@@ -62,15 +62,17 @@
     DateTime? dataFim;
 
     List<Titulo> titulos = new();
+    List<Procedimento> procedimentos = new();
     List<Cliente> clientes = new();
 
     int selectedTituloId;
     int selectedClienteId;
+    int selectedProcedimentoId;
 
     protected override async Task OnInitializedAsync()
     {
-        titulos = await Db.Titulo.ToListAsync();
         clientes = await Db.Clientes.ToListAsync();
+        procedimentos = await Db.Procedimentos.ToListAsync();
     }
 
     protected override void OnParametersSet()
@@ -84,14 +86,14 @@
             dataFim = model.DataAgendamento.Value.Date.Add(model.HoraFim.Value);
 
         // Preencher os IDs selecionados para os dropdowns
-        selectedTituloId = model.Titulo?.Id ?? 0;
+        selectedProcedimentoId = model.Procedimento?.Id ?? 0;
         selectedClienteId = model.Cliente?.Id ?? 0;
     }
 
     async Task OnSubmit(Agendamento model)
     {
         var agendamento = await Db.Agendamentos
-            .Include(a => a.Titulo)
+            .Include(p => p.Procedimento)
             .Include(a => a.Cliente)
             .Include(a => a.Status)
             .FirstOrDefaultAsync(a => a.Id == model.Id);
@@ -102,11 +104,11 @@
             return;
         }
 
-        var titulo = await Db.Titulo.FindAsync(selectedTituloId);
+        var procedimento = await Db.Procedimentos.FindAsync(selectedProcedimentoId);
         var cliente = await Db.Clientes.FindAsync(selectedClienteId);
         var status = await Db.Status.FirstOrDefaultAsync(); // Altere aqui se tiver status diferente
 
-        if (titulo == null || cliente == null || dataInicio == null)
+        if (procedimento == null || cliente == null || dataInicio == null)
         {
             NotificationService.Notify(NotificationSeverity.Error, "Erro", "Preencha todos os campos.");
             return;
@@ -121,7 +123,7 @@
         agendamento.DataAgendamento = dataInicio.Value.Date;
         agendamento.HoraInicio = dataInicio.Value.TimeOfDay;
         agendamento.HoraFim = dataFim.Value.TimeOfDay;
-        agendamento.Titulo = titulo;
+        agendamento.Procedimento = procedimento;
         agendamento.Cliente = cliente;
         agendamento.Status = status!;
 

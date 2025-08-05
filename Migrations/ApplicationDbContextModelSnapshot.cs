@@ -35,19 +35,19 @@ namespace ClinicApp.Migrations
                     b.Property<TimeSpan?>("HoraInicio")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("StatusId")
+                    b.Property<int?>("ProcedimentoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TituloId")
+                    b.Property<int>("StatusId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("ProcedimentoId");
 
-                    b.HasIndex("TituloId");
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Agendamentos");
                 });
@@ -96,7 +96,6 @@ namespace ClinicApp.Migrations
                         .HasColumnType("REAL");
 
                     b.Property<string>("UrlImage")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -190,23 +189,21 @@ namespace ClinicApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ClinicApp.Models.Procedimento", "Procedimento")
+                        .WithMany()
+                        .HasForeignKey("ProcedimentoId");
+
                     b.HasOne("ClinicApp.Models.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClinicApp.Models.Titulo", "Titulo")
-                        .WithMany()
-                        .HasForeignKey("TituloId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Cliente");
 
-                    b.Navigation("Status");
+                    b.Navigation("Procedimento");
 
-                    b.Navigation("Titulo");
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>

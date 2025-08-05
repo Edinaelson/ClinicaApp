@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ClinicApp.Models;
@@ -11,12 +12,16 @@ public class Agendamento
     public TimeSpan? HoraFim { get; set; }
 
     // Foreign Keys
-    public int TituloId { get; set; }
+    public int? ProcedimentoId { get; set; }
+    
+    //public int TituloId { get; set; }
     public int ClienteId { get; set; }
     public int StatusId { get; set; }
 
     // Navegação
-    public Titulo Titulo { get; set; } = null!;
+    //public Titulo Titulo { get; set; } = null!;
+    
+    public Procedimento? Procedimento { get; set; } = null;
     public Cliente Cliente { get; set; } = null!;
     public Status Status { get; set; } = null!;
 
@@ -33,5 +38,6 @@ public class Agendamento
 
     //Texto que aparece em agenda
     [NotMapped]
-    public string Text => $"{Cliente.Nome} - {Titulo.Texto}";
+    public string Text => $"{Cliente?.Nome ?? ""}{(Procedimento != null ? " - " + Procedimento.Nome : "")}";
+
 }
