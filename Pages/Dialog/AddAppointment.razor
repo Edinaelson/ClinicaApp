@@ -11,9 +11,9 @@
         <!-- Dropdown de Título -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Título" Style="width: 6rem;" />
-            <RadzenDropDown @bind-Value="@selectedTituloId"
-                            Data="@titulos"
-                            TextProperty="Texto"
+            <RadzenDropDown @bind-Value="@selectedProcedimentoId"
+                            Data="@procedimentos"
+                            TextProperty="Nome"
                             ValueProperty="Id"
                             Placeholder="Selecione um título"
                             Style="width: 14rem;" />
@@ -57,17 +57,19 @@
     Agendamento model = new Agendamento();
 
     List<Titulo> titulos = new();
+    List<Procedimento> procedimentos = new();
     List<Cliente> clientes = new();
 
     int selectedTituloId;
     int selectedClienteId;
+    int selectedProcedimentoId;
     DateTime startDateTime;
     DateTime endDateTime;
 
     protected override async Task OnInitializedAsync()
     {
-        titulos = await Db.Titulo.ToListAsync();
         clientes = await Db.Clientes.ToListAsync();
+        procedimentos = await Db.Procedimentos.ToListAsync();
 
         startDateTime = Start;
         endDateTime = End;
@@ -75,10 +77,10 @@
 
     async Task OnSubmit(Agendamento model)
     {
-        var titulo = titulos.FirstOrDefault(t => t.Id == selectedTituloId);
+        var procedimento = procedimentos.FirstOrDefault(p => p.Id == selectedProcedimentoId);
         var cliente = clientes.FirstOrDefault(c => c.Id == selectedClienteId);
 
-        if (titulo == null || cliente == null)
+        if (procedimento == null || cliente == null)
         {
             NotificationService.Notify(NotificationSeverity.Error, "Erro", "Selecione um título e um cliente válido.");
             return;
@@ -88,12 +90,12 @@
         model.HoraInicio = startDateTime.TimeOfDay;
         model.HoraFim = endDateTime.TimeOfDay;
 
-        model.TituloId = titulo.Id;
+        model.ProcedimentoId = procedimento.Id;
         model.ClienteId = cliente.Id;
         model.StatusId = 1; // Exemplo: Status inicial padrão (como "Agendado"). Ajuste o ID conforme seu banco.
 
         // Não deixe os objetos de navegação preenchidos para o EF não tentar inserir Titulo/Cliente de novo
-        model.Titulo = null!;
+        model.Procedimento = null!;
         model.Cliente = null!;
         model.Status = null!;
 
@@ -105,8 +107,8 @@
             // Criar e salvar relatório no banco
             var relatorio = new RelatorioConsulta
             {
-                Procedimento = titulo.Texto,
-                Preco = titulo.Price,
+                Procedimento = procedimento.Nome,
+                Preco = procedimento.Preco,
                 DataAgendada = model.DataAgendamento.Value,
                 ClienteId = cliente.Id
             };

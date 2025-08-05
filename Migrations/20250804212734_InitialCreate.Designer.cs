@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250614152600_AddRelacaoDeTitulo")]
-    partial class AddRelacaoDeTitulo
+    [Migration("20250804212734_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,19 +32,25 @@ namespace ClinicApp.Migrations
                     b.Property<DateTime?>("DataAgendamento")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("StatusId")
+                    b.Property<TimeSpan?>("HoraFim")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeSpan?>("HoraInicio")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ProcedimentoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("TituloId")
+                    b.Property<int>("StatusId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
-                    b.HasIndex("StatusId");
+                    b.HasIndex("ProcedimentoId");
 
-                    b.HasIndex("TituloId");
+                    b.HasIndex("StatusId");
 
                     b.ToTable("Agendamentos");
                 });
@@ -79,6 +85,53 @@ namespace ClinicApp.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("ClinicApp.Models.Procedimento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Preco")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("UrlImage")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Procedimentos");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataAgendada")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Preco")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("Procedimento")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("RelatoriosConsultas");
+                });
+
             modelBuilder.Entity("ClinicApp.Models.Status", b =>
                 {
                     b.Property<int>("Id")
@@ -99,6 +152,9 @@ namespace ClinicApp.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("REAL");
 
                     b.Property<string>("Texto")
                         .IsRequired()
@@ -136,23 +192,32 @@ namespace ClinicApp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ClinicApp.Models.Procedimento", "Procedimento")
+                        .WithMany()
+                        .HasForeignKey("ProcedimentoId");
+
                     b.HasOne("ClinicApp.Models.Status", "Status")
                         .WithMany()
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ClinicApp.Models.Titulo", "Titulo")
+                    b.Navigation("Cliente");
+
+                    b.Navigation("Procedimento");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>
+                {
+                    b.HasOne("ClinicApp.Models.Cliente", "Cliente")
                         .WithMany()
-                        .HasForeignKey("TituloId")
+                        .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Cliente");
-
-                    b.Navigation("Status");
-
-                    b.Navigation("Titulo");
                 });
 
             modelBuilder.Entity("ClinicApp.Models.Cliente", b =>

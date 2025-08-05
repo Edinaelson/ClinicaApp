@@ -81,7 +81,7 @@
     protected override async Task OnInitializedAsync()
     {
         appointments = await Db.Agendamentos
-            .Include(a => a.Titulo)
+            .Include(a => a.Procedimento)
             .Include(a => a.Cliente)
             .Include(a => a.Status)
             .Where(a => a.DataAgendamento != null && a.HoraInicio != null && a.HoraFim != null)
@@ -176,7 +176,7 @@
             return;
         }
 
-        console.Log($"AppointmentSelect: Appointment Cliente={(args.Data.Cliente?.Nome ?? "Cliente null", args.Data.Titulo.Texto)}");
+        console.Log($"AppointmentSelect: Appointment Cliente={(args.Data.Cliente?.Nome ?? "Cliente null", args.Data.Procedimento.Nome)}");
 
         var copy = new Agendamento
         {
@@ -184,7 +184,7 @@
             DataAgendamento = args.Data.DataAgendamento,
             HoraInicio = args.Data.HoraInicio,
             HoraFim = args.Data.HoraFim,
-            Titulo = args.Data.Titulo,
+            Procedimento = args.Data.Procedimento,
             Cliente = args.Data.Cliente,
             Status = args.Data.Status
         };
@@ -196,7 +196,7 @@
             args.Data.DataAgendamento = result.DataAgendamento;
             args.Data.HoraInicio = result.HoraInicio;
             args.Data.HoraFim = result.HoraFim;
-            args.Data.Titulo = result.Titulo;
+            args.Data.Procedimento = result.Procedimento;
             args.Data.Cliente = result.Cliente;
             args.Data.Status = result.Status;
 
