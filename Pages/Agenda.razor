@@ -117,6 +117,9 @@
 
     async Task OnSlotSelect(SchedulerSlotSelectEventArgs args)
     {
+        //args.Start = DateTime.Now;
+        args.End = args.Start.AddHours(1);
+        
         try
         {
             if (args == null)
@@ -134,7 +137,9 @@
                     NotificationService.Notify(NotificationSeverity.Error, "Erro", "DialogService está nulo.");
                     return;
                 }
-
+                
+               
+                
                 var data = await DialogService.OpenAsync<AddAppointment>("Novo Agendamento",
                     new Dictionary<string, object>
                     {
