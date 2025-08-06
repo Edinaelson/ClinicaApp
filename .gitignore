@@ -25,6 +25,8 @@ out/
 *.pdb
 *.mdb
 *.db
+*.db-shm
+*.db-wal
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
