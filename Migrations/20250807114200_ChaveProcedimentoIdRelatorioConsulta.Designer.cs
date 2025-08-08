@@ -3,6 +3,7 @@ using System;
 using ClinicApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ClinicApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250807114200_ChaveProcedimentoIdRelatorioConsulta")]
+    partial class ChaveProcedimentoIdRelatorioConsulta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.2");
@@ -109,18 +112,23 @@ namespace ClinicApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("AgendamentoId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("ClienteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DataAgendada")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("Id");
+                    b.Property<double>("Preco")
+                        .HasColumnType("REAL");
 
-                    b.HasIndex("AgendamentoId");
+                    b.Property<string>("Procedimento")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ProcedimentoId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
@@ -206,17 +214,11 @@ namespace ClinicApp.Migrations
 
             modelBuilder.Entity("ClinicApp.Models.RelatorioConsulta", b =>
                 {
-                    b.HasOne("ClinicApp.Models.Agendamento", "Agendamento")
-                        .WithMany()
-                        .HasForeignKey("AgendamentoId");
-
                     b.HasOne("ClinicApp.Models.Cliente", "Cliente")
                         .WithMany()
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Agendamento");
 
                     b.Navigation("Cliente");
                 });
