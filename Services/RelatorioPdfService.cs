@@ -55,8 +55,8 @@ public class RelatorioPdfService
 
                     foreach (var r in relatorios)
                     {
-                        table.Cell().Text(r.Procedimento);
-                        table.Cell().Text(r.Preco.ToString("C"));
+                        table.Cell().Text(r.Agendamento.Procedimento);
+                        table.Cell().Text(r.Agendamento.Procedimento.Preco.ToString("C"));
                         table.Cell().Text(r.DataAgendada.ToString("dd/MM/yyyy"));
                     }
                 });

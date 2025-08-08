@@ -58,9 +58,9 @@
     <RadzenDataList Data="@relatorios" TItem="RelatorioConsulta" Context="relatorio">
         <Template Context="relatorio">
             <div style="padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; border-radius: 6px;">
-            <p class="gradientColor"><b>Procedimento:</b>@relatorio.Procedimento</p>
+                <p class="gradientColor"><b>Procedimento:</b> @relatorio.Agendamento?.Procedimento?.Nome</p>
                 <p><b>Data:</b> @relatorio.DataAgendada.ToString("dd/MM/yyyy")</p>
-                <p><b>Preço:</b> @relatorio.Preco.ToString("C")</p>
+                <p><b>Preço:</b> @relatorio.Agendamento?.Procedimento?.Preco.ToString("C")</p>
 
                 <RadzenButton Icon="email"
                               Text="Enviar por Email"
@@ -99,10 +99,13 @@
     {
         relatorios = await Db.RelatoriosConsultas
             .Where(r => r.ClienteId == clienteSelecionadoId)
+            .Include(a=> a.Agendamento)
+            .ThenInclude(a => a.Procedimento)
             .OrderByDescending(r => r.DataAgendada)
             .ToListAsync();
         StateHasChanged();
     }
+    
     
     async Task EnviarRelatorioPorEmail()
     {

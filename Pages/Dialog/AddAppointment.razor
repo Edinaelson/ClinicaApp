@@ -59,10 +59,13 @@
     List<Titulo> titulos = new();
     List<Procedimento> procedimentos = new();
     List<Cliente> clientes = new();
+    List<Agendamento> agendamentos = new();
 
     int selectedTituloId;
     int selectedClienteId;
     int selectedProcedimentoId;
+    int selectedAgendamentoId;
+    
     DateTime startDateTime;
     DateTime endDateTime;
 
@@ -79,6 +82,7 @@
     {
         var procedimento = procedimentos.FirstOrDefault(p => p.Id == selectedProcedimentoId);
         var cliente = clientes.FirstOrDefault(c => c.Id == selectedClienteId);
+        var agendadamento = agendamentos.FirstOrDefault(a => a.Id == selectedAgendamentoId);
 
         if (procedimento == null || cliente == null)
         {
@@ -107,8 +111,8 @@
             // Criar e salvar relatório no banco
             var relatorio = new RelatorioConsulta
             {
-                Procedimento = procedimento.Nome,
-                Preco = procedimento.Preco,
+                AgendamentoId = model.Id,
+                //Preco = procedimento.Preco,
                 DataAgendada = model.DataAgendamento.Value,
                 ClienteId = cliente.Id
             };
@@ -120,7 +124,10 @@
             var clienteEmail = cliente.Email;
             var assunto = "Confirmação de Agendamento";
             var mensagem = $"Olá {cliente.Nome}, seu agendamento foi realizado com sucesso para o dia {startDateTime:dd/MM/yyyy} às {startDateTime:HH:mm}.";
-            await EmailService.SendEmailAsync(clienteEmail, assunto, mensagem);
+            
+            //TODO email desativado para testes
+            
+            //await EmailService.SendEmailAsync(clienteEmail, assunto, mensagem);
 
             NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento salvo com sucesso e e-mail enviado.");
             DialogService.Close(model);
