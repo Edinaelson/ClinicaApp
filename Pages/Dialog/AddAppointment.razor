@@ -108,7 +108,26 @@
             Db.Agendamentos.Add(model);
             await Db.SaveChangesAsync();
             
+            // Verificar se já existe relatório para este agendamento
+            var relatorioExistente = await Db.RelatoriosConsultas
+                .FirstOrDefaultAsync(r => r.AgendamentoId == model.Id);
+            
+            if (relatorioExistente == null)
+            {
+                var relatorio = new RelatorioConsulta
+                {
+                    AgendamentoId = model.Id,
+                    DataAgendada = model.DataAgendamento.Value,
+                    ClienteId = cliente.Id
+                };
+
+                Db.RelatoriosConsultas.Add(relatorio);
+                await Db.SaveChangesAsync();
+            }
+            
             // Criar e salvar relatório no banco
+            
+            /*
             var relatorio = new RelatorioConsulta
             {
                 AgendamentoId = model.Id,
@@ -119,14 +138,15 @@
 
             Db.RelatoriosConsultas.Add(relatorio);
             await Db.SaveChangesAsync();
+            
+            */
 
             // Enviar e-mail após salvar
             var clienteEmail = cliente.Email;
             var assunto = "Confirmação de Agendamento";
             var mensagem = $"Olá {cliente.Nome}, seu agendamento foi realizado com sucesso para o dia {startDateTime:dd/MM/yyyy} às {startDateTime:HH:mm}.";
             
-            //TODO email desativado para testes
-            
+            //TODO email desativado para testes descomentar para ativar
             //await EmailService.SendEmailAsync(clienteEmail, assunto, mensagem);
 
             NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento salvo com sucesso e e-mail enviado.");
