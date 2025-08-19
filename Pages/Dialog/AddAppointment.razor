@@ -11,23 +11,42 @@
         <!-- Dropdown de Título -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Título" Style="width: 6rem;" />
-            <RadzenDropDown @bind-Value="@selectedProcedimentoId"
-                            Data="@procedimentos"
-                            TextProperty="Nome"
-                            ValueProperty="Id"
-                            Placeholder="Selecione um título"
-                            Style="width: 14rem;" />
+
+            @if (Procedimento != null)
+            {
+                <!-- Mostra o título fixo -->
+                @* <RadzenLabel Text="@Procedimento.Nome" *@
+                @*              Style="width: 14rem; font-weight: bold; color: green;" /> *@
+
+                <RadzenDropDown @bind-Value="@selectedProcedimentoId"
+                Data="@procedimentos"
+                TextProperty="Nome"
+                ValueProperty="Id"
+                Disabled="true"
+                Style="width: 14rem; color: forestgreen;" />
+            }
+            else
+            {
+                <!-- Permite escolher o título normalmente -->
+                <RadzenDropDown @bind-Value="@selectedProcedimentoId"
+                Data="@procedimentos"
+                TextProperty="Nome"
+                ValueProperty="Id"
+                Placeholder="Selecione um título"
+                Style="width: 14rem;" />
+            }
         </RadzenStack>
+
 
         <!-- Dropdown de Cliente -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Cliente" Style="width: 6rem;" />
             <RadzenDropDown @bind-Value="@selectedClienteId"
-                            Data="@clientes"
-                            TextProperty="Nome"
-                            ValueProperty="Id"
-                            Placeholder="Selecione um cliente"
-                            Style="width: 14rem;" />
+            Data="@clientes"
+            TextProperty="Nome"
+            ValueProperty="Id"
+            Placeholder="Selecione um cliente"
+            Style="width: 14rem;" />
         </RadzenStack>
 
         <!-- Campo Data/Hora de Início -->
@@ -53,6 +72,7 @@
 @code {
     [Parameter] public DateTime Start { get; set; }
     [Parameter] public DateTime End { get; set; }
+    [Parameter] public Procedimento Procedimento { get; set; }
 
     Agendamento model = new Agendamento();
 
@@ -65,14 +85,31 @@
     int selectedClienteId;
     int selectedProcedimentoId;
     int selectedAgendamentoId;
-    
+
     DateTime startDateTime;
     DateTime endDateTime;
 
+    Agendamento novoAgendamento = new();
+
+
+
     protected override async Task OnInitializedAsync()
     {
-        clientes = await Db.Clientes.ToListAsync();
         procedimentos = await Db.Procedimentos.ToListAsync();
+        clientes = await Db.Clientes.ToListAsync();
+
+        if(Procedimento != null)
+        {
+            novoAgendamento.ProcedimentoId = Procedimento.Id;
+            novoAgendamento.Procedimento = Procedimento;
+            selectedProcedimentoId = Procedimento.Id;
+
+            Console.WriteLine("Procedimento ID: " + selectedProcedimentoId);
+
+        }
+
+        
+       
 
         startDateTime = Start;
         endDateTime = End;
@@ -80,6 +117,7 @@
 
     async Task OnSubmit(Agendamento model)
     {
+
         var procedimento = procedimentos.FirstOrDefault(p => p.Id == selectedProcedimentoId);
         var cliente = clientes.FirstOrDefault(c => c.Id == selectedClienteId);
         var agendadamento = agendamentos.FirstOrDefault(a => a.Id == selectedAgendamentoId);
@@ -105,6 +143,18 @@
 
         try
         {
+
+            var agendamento = new Agendamento
+                {
+                    HoraInicio = startDateTime.TimeOfDay,
+                    HoraFim = endDateTime.TimeOfDay,
+                    ClienteId = cliente.Id,
+                    ProcedimentoId = Procedimento != null
+                    ? Procedimento.Id
+                    : selectedProcedimentoId, // pega do dropdown se não veio fixo
+                
+                };
+
             Db.Agendamentos.Add(model);
             await Db.SaveChangesAsync();
             
