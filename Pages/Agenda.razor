@@ -138,13 +138,14 @@
                     return;
                 }
                 
-               
+                var start = DateTime.Now;
+                var end = start.AddHours(1);
                 
                 var data = await DialogService.OpenAsync<AddAppointment>("Novo Agendamento",
                     new Dictionary<string, object>
                     {
-                        { "Start", args.Start },
-                        { "End", args.End }
+                        { "Start", start },
+                        { "End", end }
                     });
 
                 if (data != null)
