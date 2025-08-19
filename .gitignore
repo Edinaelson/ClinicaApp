@@ -28,5 +28,15 @@ out/
 *.db-shm
 *.db-wal
 
+# SQLite Database
+*.db
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
