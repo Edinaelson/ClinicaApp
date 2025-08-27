@@ -24,12 +24,12 @@ out/
 *.cache
 *.pdb
 *.mdb
-*.db
+#*.db
 *.db-shm
 *.db-wal
 
 # SQLite Database
-db
+#db
 
 # Visual Studio
 .vs/
