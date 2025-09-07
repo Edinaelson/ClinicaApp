@@ -27,7 +27,18 @@
                             Placeholder="Selecione"
                             Style="width: 14rem;" />
         </RadzenStack>
+        
+        <!-- Status -->
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Status" Style="width: 6rem"/>
+            <RadzenDropDown @bind-Value="@selectedStatusId"
+                            Data="@status"
+                            TextProperty="StatusText"
+                            ValueProperty="Id"
+                            Placeholder="Selecione"
+                            Style="width: 14rem"/>
 
+        </RadzenStack>
         <!-- Início -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Início" Style="width: 6rem;" />
@@ -46,9 +57,14 @@
                               Style="width: 14rem;" />
         </RadzenStack>
 
-        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Salvar" />
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start">
+            
         </RadzenStack>
+        
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Salvar"/>
+        </RadzenStack>
+        
     </RadzenStack>
 </RadzenTemplateForm>
 
@@ -64,15 +80,18 @@
     List<Titulo> titulos = new();
     List<Procedimento> procedimentos = new();
     List<Cliente> clientes = new();
+    List<Status> status = new ();
 
     int selectedTituloId;
     int selectedClienteId;
     int selectedProcedimentoId;
-
+    int selectedStatusId;
+    
     protected override async Task OnInitializedAsync()
     {
         clientes = await Db.Clientes.ToListAsync();
         procedimentos = await Db.Procedimentos.ToListAsync();
+        status = await Db.Status.ToListAsync();
     }
 
     protected override void OnParametersSet()
@@ -88,6 +107,7 @@
         // Preencher os IDs selecionados para os dropdowns
         selectedProcedimentoId = model.Procedimento?.Id ?? 0;
         selectedClienteId = model.Cliente?.Id ?? 0;
+        selectedStatusId = model.Status?.Id ?? 0;
     }
 
     async Task OnSubmit(Agendamento model)
@@ -106,7 +126,8 @@
 
         var procedimento = await Db.Procedimentos.FindAsync(selectedProcedimentoId);
         var cliente = await Db.Clientes.FindAsync(selectedClienteId);
-        var status = await Db.Status.FirstOrDefaultAsync(); // Altere aqui se tiver status diferente
+        
+        var statu = await Db.Status.FindAsync(selectedStatusId); // Altere aqui se tiver status diferente
 
         if (procedimento == null || cliente == null || dataInicio == null)
         {
@@ -125,8 +146,8 @@
         agendamento.HoraFim = dataFim.Value.TimeOfDay;
         agendamento.Procedimento = procedimento;
         agendamento.Cliente = cliente;
-        agendamento.Status = status!;
-
+        agendamento.Status = statu;
+        
         await Db.SaveChangesAsync();
 
         NotificationService.Notify(NotificationSeverity.Success, "Sucesso", "Agendamento atualizado!");

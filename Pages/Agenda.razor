@@ -217,10 +217,20 @@
     {
         // Never call StateHasChanged in AppointmentRender - would lead to infinite loop
 
-        if (args.Data.Text == "Birthday")
+        switch (args.Data.Status.StatusText)
         {
-            args.Attributes["style"] = "background: red";
+            case("Cancelado"):
+                args.Attributes["style"] = "background: #E43939";
+                break;
+            
+            case("Pendente"):
+                args.Attributes["style"] = "background: #D47F2A";
+                break;
+                
         }
+        
+        Console.WriteLine(args.Data.Status.StatusText);
+        
     }
 
     async Task OnAppointmentMove(SchedulerAppointmentMoveEventArgs args)
