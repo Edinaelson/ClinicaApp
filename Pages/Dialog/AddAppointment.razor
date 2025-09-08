@@ -49,6 +49,19 @@
             Style="width: 14rem;" />
         </RadzenStack>
 
+        <!-- Dropdown de Stutus fixo -->
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
+            <RadzenLabel Text="Status" Style="width: 6rem; "/>
+            <RadzenDropDown @bind-Value="@selectedStatusId" 
+            Data="@statuses"
+            TextProperty="StatusText"
+            ValueProperty="Id"
+            Disabled="false"
+            />
+
+        </RadzenStack>
+
         <!-- Campo Data/Hora de Início -->
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap">
             <RadzenLabel Text="Início" Style="width: 6rem;" />
@@ -80,23 +93,24 @@
     List<Procedimento> procedimentos = new();
     List<Cliente> clientes = new();
     List<Agendamento> agendamentos = new();
+    List<Status> statuses = new();
 
     int selectedTituloId;
     int selectedClienteId;
     int selectedProcedimentoId;
     int selectedAgendamentoId;
+    int selectedStatusId;
 
     DateTime startDateTime;
     DateTime endDateTime;
 
     Agendamento novoAgendamento = new();
 
-
-
     protected override async Task OnInitializedAsync()
     {
         procedimentos = await Db.Procedimentos.ToListAsync();
         clientes = await Db.Clientes.ToListAsync();
+        statuses = await Db.Status.ToListAsync();
 
         if(Procedimento != null)
         {
@@ -108,11 +122,9 @@
 
         }
 
-        
-       
-
         startDateTime = Start;
         endDateTime = End;
+        selectedStatusId = 4; //Agendado
     }
 
     async Task OnSubmit(Agendamento model)
@@ -120,6 +132,7 @@
 
         var procedimento = procedimentos.FirstOrDefault(p => p.Id == selectedProcedimentoId);
         var cliente = clientes.FirstOrDefault(c => c.Id == selectedClienteId);
+        var status = statuses.FirstOrDefault(s => s.Id == selectedStatusId);
         var agendadamento = agendamentos.FirstOrDefault(a => a.Id == selectedAgendamentoId);
 
         if (procedimento == null || cliente == null)
@@ -134,7 +147,7 @@
 
         model.ProcedimentoId = procedimento.Id;
         model.ClienteId = cliente.Id;
-        model.StatusId = 1; // Exemplo: Status inicial padrão (como "Agendado"). Ajuste o ID conforme seu banco.
+        model.StatusId = status.Id; // Exemplo: Status inicial padrão (como "Agendado"). Ajuste o ID conforme seu banco.
 
         // Não deixe os objetos de navegação preenchidos para o EF não tentar inserir Titulo/Cliente de novo
         model.Procedimento = null!;
