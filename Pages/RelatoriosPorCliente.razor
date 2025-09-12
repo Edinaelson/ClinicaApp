@@ -85,7 +85,8 @@
     List<Cliente> clientes = new();
     List<RelatorioConsulta>? relatorios;
     int clienteSelecionadoId;
-    
+   
+
     private bool enviandoEmail = false;
     private string BotaoTexto = "📤 Enviar Última Consulta por Email";
     private string BotaoIcone = "send";
@@ -98,7 +99,7 @@
     async Task CarregarRelatorios()
     {
         relatorios = await Db.RelatoriosConsultas
-            .Where(r => r.ClienteId == clienteSelecionadoId)
+            .Where(r => r.ClienteId == clienteSelecionadoId && r.Agendamento.Status.StatusText.ToString() != "Cancelado" )
             .Include(a=> a.Agendamento)
             .ThenInclude(a => a.Procedimento)
             .OrderByDescending(r => r.DataAgendada)
