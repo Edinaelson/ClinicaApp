@@ -122,8 +122,8 @@
 
         }
 
-        startDateTime = Start;
-        endDateTime = End;
+        startDateTime = DateTime.Now;
+        endDateTime = startDateTime.AddHours(1);
         selectedStatusId = 4; //Agendado
     }
 

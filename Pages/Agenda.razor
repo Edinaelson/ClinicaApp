@@ -138,7 +138,7 @@
                     return;
                 }
                 
-                var start = DateTime.Now;
+                var start = args.Start;
                 var end = start.AddHours(1);
                 
                 var data = await DialogService.OpenAsync<AddAppointment>("Novo Agendamento",
@@ -170,9 +170,6 @@
             console?.Log($"Erro no OnSlotSelect: {ex}");
         }
     }
-
-
-
     
     async Task OnAppointmentSelect(SchedulerAppointmentSelectEventArgs<Agendamento> args)
     {
