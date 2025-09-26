@@ -1,3 +1,10 @@
+# ⚠️ Projeto Descontinuado
+
+> **Este projeto foi encerrado e não receberá mais atualizações ou suporte.  
+> Recomenda-se não utilizar em produção.**
+
+---
+
 # 🗓️ ClinicApp - Sistema de Agendamento
 
 Este é um sistema de agendamento de compromissos desenvolvido com **Blazor** usando componentes da biblioteca **Radzen**. O objetivo é fornecer uma interface moderna para controle de horários, incluindo visualização por dia, semana e mês.
@@ -23,7 +30,7 @@ Este é um sistema de agendamento de compromissos desenvolvido com **Blazor** us
 
 ## 🖼️ Capturas de Tela
 
-![Agenda - Dia](images/img05.png)
+![Agenda - Dia](images/img01.png)
 
 ![projeto - ](images/img01.png)
 

@@ -22,12 +22,42 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\images\img01.png" />
-    <None Include="wwwroot\images\img02.png" />
-    <None Include="wwwroot\images\img03.png" />
-    <None Include="wwwroot\images\img04.png" />
-    <None Include="wwwroot\images\img05.png" />
+    <Content Include="images\img01.png" />
+    <Content Include="images\img02.png" />
+    <Content Include="images\img03.png" />
+    <Content Include="images\img04.png" />
+    <Content Include="images\img05.png" />
+    <Content Include="images\logo.jpg" />
+    <Content Include="images\logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\procedimentos\1704e693-815e-43cc-b78e-bf716c0ca679.jpg" />
+    <None Include="wwwroot\images\procedimentos\277e1c6f-0adf-4a11-bfee-a29555462249.jpg" />
+    <None Include="wwwroot\images\procedimentos\2be80126-7835-4122-9960-a7d9df16b4c2.jpg" />
+    <None Include="wwwroot\images\procedimentos\2f24b704-0475-4669-b2e0-d60ca3c09158.jpg" />
+    <None Include="wwwroot\images\procedimentos\32de2aa9-676e-4107-8fcf-99bd689372aa.jpg" />
+    <None Include="wwwroot\images\procedimentos\417f4cb9-3eb5-41fc-a9aa-c846675e9af1.jpg" />
+    <None Include="wwwroot\images\procedimentos\485b0ede-b12b-4956-9fa9-04c9b46ac58a.jpg" />
+    <None Include="wwwroot\images\procedimentos\55ac63a6-3f2a-41db-9a42-75c71b61fd76.jpg" />
+    <None Include="wwwroot\images\procedimentos\591f52b4-19e5-40e3-bbd6-f76c3904d15d.jpg" />
+    <None Include="wwwroot\images\procedimentos\6177dd5f-9e35-4b71-8b22-445bacbcacf6.jpg" />
+    <None Include="wwwroot\images\procedimentos\6b61f5ed-7e28-4ba4-b479-f2b23299a21e.jpg" />
+    <None Include="wwwroot\images\procedimentos\7c7e3a03-a084-41aa-ac49-cb0dfe256581.jpg" />
+    <None Include="wwwroot\images\procedimentos\89b6a480-8998-4ffd-927c-b0e5777ffc1f.jpg" />
+    <None Include="wwwroot\images\procedimentos\8fe8a1db-4c48-45e0-90aa-95094908a501.jpg" />
+    <None Include="wwwroot\images\procedimentos\948b9d2e-92f6-4fe0-8d47-1c9250de965f.jpg" />
+    <None Include="wwwroot\images\procedimentos\9a189bd4-51c4-43d1-bc91-8b4b5b7276ae.jpg" />
+    <None Include="wwwroot\images\procedimentos\9b492069-f026-4961-9bad-e5baa634c9f5.jpg" />
+    <None Include="wwwroot\images\procedimentos\9e5acf18-f7da-4e33-a4a2-50d9325abe4e.jpg" />
+    <None Include="wwwroot\images\procedimentos\a1c88c6c-1479-4d79-9019-299c8115eb78.jpg" />
+    <None Include="wwwroot\images\procedimentos\aaa5ca6e-a1a7-47a9-9a11-ee5e3c48b813.jpg" />
+    <None Include="wwwroot\images\procedimentos\b5177628-5435-4534-af68-ab77ba6d1ffe.jpg" />
+    <None Include="wwwroot\images\procedimentos\b9fa76ad-dcac-4346-a07f-adb48dbcf426.jpg" />
     <None Include="wwwroot\images\procedimentos\Criolipólise.jpg" />
+    <None Include="wwwroot\images\procedimentos\ea205de2-d983-4ef3-8604-ce78594c7f73.jpg" />
+    <None Include="wwwroot\images\procedimentos\edb125ad-2fa0-4f73-bbea-959bdb00358d.jpg" />
+    <None Include="wwwroot\images\procedimentos\f7bef3d2-15df-4f85-82ab-3471c983a5ac.jpg" />
     <None Include="wwwroot\images\procedimentos\Harmonização Facial.jpg" />
     <None Include="wwwroot\images\procedimentos\Lipoaspiração e Lipo HD.jpg" />
     <None Include="wwwroot\images\procedimentos\Rinomodelação.jpg" />
